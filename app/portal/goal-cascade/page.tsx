@@ -199,6 +199,7 @@ export default function GoalCascadeWorkspacePage() {
   const [teacherComment, setTeacherComment] = useState<string>("");
   const [hasSubmitted, setHasSubmitted] = useState<boolean>(false);
   const [submittedScore, setSubmittedScore] = useState<number>(0);
+  const [allGroupPlans, setAllGroupPlans] = useState<any[]>([]);
   const isTimeOver = activeTimer <= 0;
 
   // Form State
@@ -446,9 +447,26 @@ export default function GoalCascadeWorkspacePage() {
     setPlan((prev) => ({ ...prev, studentCode: saved }));
   }, []);
 
-  // Tải thông tin bài nộp & nhận xét của giảng viên cho nhóm đang chọn
+  // Tải thông tin bài nộp, bản nháp đã lưu & nhận xét của giảng viên cho nhóm đang chọn
   useEffect(() => {
     setTeacherComment("");
+    // 1. Phục hồi bản nháp cục bộ (nếu có)
+    try {
+      const savedDraft = localStorage.getItem(`goal_cascade_draft_group_${selectedDeptIndex}`);
+      if (savedDraft) {
+        const parsed = JSON.parse(savedDraft);
+        setPlan((prev) => ({
+          ...prev,
+          ...parsed,
+          department: GOAL_CASCADE_GROUPS[selectedDeptIndex],
+        }));
+        setAutoSaveMsg("Đã khôi phục bản nháp đang gõ");
+      }
+    } catch (e) {
+      console.error(e);
+    }
+
+    // 2. Tải bài nộp chính thức của nhóm này từ máy chủ
     fetch(`/api/goal-cascade?groupIndex=${selectedDeptIndex}`)
       .then((r) => r.json())
       .then((d) => {
@@ -456,13 +474,42 @@ export default function GoalCascadeWorkspacePage() {
           setHasSubmitted(true);
           setSubmittedScore(d.plan.score || 0);
           setTeacherComment(d.plan.comment || "");
+          // Nếu đã nộp và không có nháp dở thì nạp dữ liệu đã nộp
+          if (!localStorage.getItem(`goal_cascade_draft_group_${selectedDeptIndex}`) && d.plan.data?.plan) {
+            setPlan((prev) => ({
+              ...prev,
+              ...d.plan.data.plan,
+              department: GOAL_CASCADE_GROUPS[selectedDeptIndex],
+            }));
+          }
         } else {
           setHasSubmitted(false);
           setSubmittedScore(0);
         }
       })
       .catch(() => {});
+
+    // 3. Tải danh sách bài nộp của cả 6 nhóm để hiện thị bức tranh toàn viện ở Tab Cây phân rã
+    fetch("/api/goal-cascade")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.plans) setAllGroupPlans(d.plans);
+      })
+      .catch(() => {});
   }, [selectedDeptIndex]);
+
+  // Tự động lưu nháp mỗi khi học viên thay đổi nội dung (Autosave sau 1 giây)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      try {
+        localStorage.setItem(`goal_cascade_draft_group_${selectedDeptIndex}`, JSON.stringify(plan));
+        setAutoSaveMsg("Đã tự động lưu nháp");
+      } catch (e) {
+        console.error(e);
+      }
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [plan, selectedDeptIndex]);
 
   // Submit plan to API (trưởng nhóm nộp 1 bản cho cả nhóm, có thể nộp đè khi còn giờ)
   const handleSubmitPlan = async () => {
@@ -1364,7 +1411,7 @@ export default function GoalCascadeWorkspacePage() {
                 <div>Mức hiện tại: <strong>84%</strong></div>
                 <div>Hạn chót: <strong>31/12/2027</strong></div>
                 <div>Chủ trì: <strong>Ban Giám đốc BV</strong></div>
-                <div>Độ phủ mục tiêu: <strong className="text-amber-300">5 Khối/Khoa phòng</strong></div>
+                <div>Độ phủ mục tiêu: <strong className="text-amber-300">6 Khối / Khoa phòng</strong></div>
               </div>
             </div>
 
@@ -1373,34 +1420,63 @@ export default function GoalCascadeWorkspacePage() {
               <div className="w-0.5 h-6 bg-slate-300"></div>
             </div>
 
-            {/* Level 2: Department Level (Active & Other Departments) */}
+            {/* Level 2: Department Level (All 6 Groups with live data if available) */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {SAMPLE_DEPARTMENTS.slice(0, 3).map((dept, idx) => (
-                <div
-                  key={dept.name}
-                  className={`p-4 rounded-lg border transition ${
-                    dept.name === plan.department
-                      ? "border-2 border-[#00685E] bg-teal-50/40 shadow"
-                      : "border-slate-200 bg-slate-50"
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] font-bold font-mono px-1.5 py-0.5 bg-slate-200 text-slate-700 rounded">
-                      CẤP 2: KHOA/PHÒNG
-                    </span>
-                    {dept.name === plan.department && (
-                      <span className="text-[10px] font-bold text-[#00685E] bg-teal-100 px-1.5 py-0.5 rounded">
-                        ● Nhóm của bạn
+              {GOAL_CASCADE_GROUPS.map((grpName, idx) => {
+                const sample = SAMPLE_DEPARTMENTS[idx] || SAMPLE_DEPARTMENTS[0];
+                const submittedPlan = allGroupPlans.find(
+                  (p: any) => p.groupIndex === idx || p.department === grpName
+                );
+                const isCurrentGroup = grpName === plan.department;
+                const displayGoal = isCurrentGroup
+                  ? plan.step1_goal || sample.goal
+                  : (submittedPlan?.data?.plan?.step1_goal || sample.goal);
+                const displayTarget = isCurrentGroup
+                  ? (plan.step2_results?.[0]?.target ? `${plan.step2_results[0].target} ${plan.step2_results[0].unit}` : sample.target)
+                  : (submittedPlan?.data?.plan?.step2_results?.[0]?.target
+                      ? `${submittedPlan.data.plan.step2_results[0].target} ${submittedPlan.data.plan.step2_results[0].unit}`
+                      : sample.target);
+
+                return (
+                  <div
+                    key={grpName}
+                    className={`p-4 rounded-lg border transition ${
+                      isCurrentGroup
+                        ? "border-2 border-[#00685E] bg-teal-50/50 shadow-sm ring-1 ring-teal-200"
+                        : submittedPlan
+                        ? "border-emerald-300 bg-emerald-50/30"
+                        : "border-slate-200 bg-slate-50"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[10px] font-bold font-mono px-1.5 py-0.5 bg-slate-200 text-slate-700 rounded">
+                        CẤP 2: {grpName.split(":")[0]}
                       </span>
-                    )}
+                      {isCurrentGroup ? (
+                        <span className="text-[10px] font-bold text-[#00685E] bg-teal-100 px-1.5 py-0.5 rounded">
+                          ● Nhóm của bạn
+                        </span>
+                      ) : submittedPlan ? (
+                        <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded">
+                          ✓ Đã nộp bài
+                        </span>
+                      ) : (
+                        <span className="text-[10px] text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">
+                          Đang làm bài...
+                        </span>
+                      )}
+                    </div>
+                    <h4 className="text-xs font-bold text-slate-900 line-clamp-1">{grpName}</h4>
+                    <p className="text-[11px] text-slate-600 mt-1 line-clamp-2">{displayGoal}</p>
+                    <div className="mt-3 pt-2 border-t text-[10px] text-slate-500 font-mono flex items-center justify-between">
+                      <span>Chỉ tiêu: <strong className="text-slate-800">{displayTarget}</strong></span>
+                      {submittedPlan?.score !== undefined && (
+                        <span className="font-bold text-emerald-700">{submittedPlan.score}/100đ</span>
+                      )}
+                    </div>
                   </div>
-                  <h4 className="text-xs font-bold text-slate-900">{dept.name}</h4>
-                  <p className="text-[11px] text-slate-600 mt-1 line-clamp-2">{dept.goal}</p>
-                  <div className="mt-3 pt-2 border-t text-[10px] text-slate-500 font-mono">
-                    Chỉ tiêu: <strong className="text-slate-800">{dept.target}</strong>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             {/* Connector Line */}
