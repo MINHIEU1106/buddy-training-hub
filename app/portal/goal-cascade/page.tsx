@@ -197,6 +197,9 @@ export default function GoalCascadeWorkspacePage() {
   const [activeTimer, setActiveTimer] = useState<number>(1500); // 25 mins
   const [isTimerRunning, setIsTimerRunning] = useState<boolean>(true);
   const [teacherComment, setTeacherComment] = useState<string>("");
+  const [hasSubmitted, setHasSubmitted] = useState<boolean>(false);
+  const [submittedScore, setSubmittedScore] = useState<number>(0);
+  const isTimeOver = activeTimer <= 0;
 
   // Form State
   const [plan, setPlan] = useState<GoalPlan>({
@@ -443,17 +446,30 @@ export default function GoalCascadeWorkspacePage() {
     setPlan((prev) => ({ ...prev, studentCode: saved }));
   }, []);
 
-  // Tải nhận xét của giảng viên cho nhóm đang chọn
+  // Tải thông tin bài nộp & nhận xét của giảng viên cho nhóm đang chọn
   useEffect(() => {
     setTeacherComment("");
     fetch(`/api/goal-cascade?groupIndex=${selectedDeptIndex}`)
       .then((r) => r.json())
-      .then((d) => setTeacherComment(d.plan?.comment || ""))
+      .then((d) => {
+        if (d.plan) {
+          setHasSubmitted(true);
+          setSubmittedScore(d.plan.score || 0);
+          setTeacherComment(d.plan.comment || "");
+        } else {
+          setHasSubmitted(false);
+          setSubmittedScore(0);
+        }
+      })
       .catch(() => {});
   }, [selectedDeptIndex]);
 
-  // Submit plan to API (trưởng nhóm nộp 1 bản cho cả nhóm)
+  // Submit plan to API (trưởng nhóm nộp 1 bản cho cả nhóm, có thể nộp đè khi còn giờ)
   const handleSubmitPlan = async () => {
+    if (isTimeOver) {
+      alert("Đã hết thời gian thực hành (25 phút). Hệ thống đã đóng cổng nộp bài.");
+      return;
+    }
     if (!plan.studentCode) {
       alert("Bạn chưa đăng nhập mã học viên. Vui lòng vào Cổng học viên để đăng nhập trước khi nộp.");
       return;
@@ -476,8 +492,10 @@ export default function GoalCascadeWorkspacePage() {
         alert(data.error || "Nộp bài thất bại");
         return;
       }
+      setHasSubmitted(true);
+      setSubmittedScore(score);
       setSubmitSuccess(true);
-      setAutoSaveMsg("Đã nộp bài thực hành Buổi 2 thành công!");
+      setAutoSaveMsg("Đã nộp bài thực hành thành công!");
     } catch (e) {
       console.error(e);
       alert("Không kết nối được máy chủ. Vui lòng thử lại.");
@@ -538,10 +556,29 @@ export default function GoalCascadeWorkspacePage() {
             {/* Submit Action */}
             <button
               onClick={handleSubmitPlan}
-              disabled={isSubmitting}
-              className="bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold px-4 py-2 rounded text-sm transition shadow font-mono"
+              disabled={isSubmitting || isTimeOver}
+              className={`font-bold px-4 py-2 rounded text-sm transition shadow font-mono flex items-center gap-1.5 ${
+                isTimeOver
+                  ? "bg-slate-700 text-slate-400 cursor-not-allowed border border-slate-600"
+                  : hasSubmitted
+                  ? "bg-emerald-400 hover:bg-emerald-300 text-slate-950 border border-emerald-300"
+                  : "bg-amber-400 hover:bg-amber-300 text-slate-950"
+              }`}
+              title={
+                isTimeOver
+                  ? "Đã hết thời gian làm bài (25 phút), không thể chỉnh sửa nộp lại"
+                  : hasSubmitted
+                  ? "Nhóm đã nộp bài. Bấm để nộp đè bản cập nhật mới nhất trước khi hết giờ"
+                  : "Nộp bài thực hành của nhóm"
+              }
             >
-              {isSubmitting ? "Đang gửi..." : "Nộp bài thực hành"}
+              {isSubmitting
+                ? "Đang gửi..."
+                : isTimeOver
+                ? "Đã khóa (Hết giờ)"
+                : hasSubmitted
+                ? "✓ Cập nhật bài nộp"
+                : "Nộp bài thực hành"}
             </button>
           </div>
         </div>
@@ -1521,20 +1558,74 @@ export default function GoalCascadeWorkspacePage() {
           </div>
         )}
 
-        {/* Success Modal / Toast */}
+        {/* Central Success Modal */}
         {submitSuccess && (
-          <div className="fixed bottom-6 right-6 bg-slate-900 text-white p-4 rounded-lg shadow-xl border border-teal-500 max-w-md z-50 animate-bounce">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-bold text-amber-400 uppercase font-mono">
-                ✓ NỘP BÀI THỰC HÀNH BUỔI 2 THÀNH CÔNG
-              </span>
-              <button onClick={() => setSubmitSuccess(false)} className="text-xs text-slate-400 hover:text-white">
+          <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+            <div className="bg-white rounded-2xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-teal-200 text-center space-y-5 relative">
+              {/* Close icon */}
+              <button
+                onClick={() => setSubmitSuccess(false)}
+                className="absolute top-4 right-4 text-slate-400 hover:text-slate-700 text-lg font-bold p-1 rounded-full hover:bg-slate-100 transition"
+                title="Đóng popup"
+              >
                 ✕
               </button>
+
+              {/* Success Badge */}
+              <div className="w-16 h-16 bg-emerald-100 text-[#00685E] rounded-full flex items-center justify-center mx-auto text-3xl shadow-inner font-bold">
+                ✓
+              </div>
+
+              <div>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-teal-800 bg-teal-50 px-3 py-1 rounded-full font-mono border border-teal-200">
+                  Ghi Nhận Thành Công
+                </span>
+                <h3 className="text-xl font-extrabold text-slate-900 mt-2">
+                  ĐÃ NỘP BÀI THỰC HÀNH BUỔI 2
+                </h3>
+                <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">
+                  Kế hoạch phân rã 5W1H của <strong className="text-slate-900">{plan.department}</strong> đã được đồng bộ lên Bảng tổng hợp của Giảng viên.
+                </p>
+              </div>
+
+              {/* Score Highlight Box */}
+              <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between">
+                <div className="text-left">
+                  <div className="text-xs font-bold text-slate-700">Điểm chất lượng đạt chuẩn:</div>
+                  <div className="text-[11px] text-slate-500">Đánh giá theo 4 tiêu chí SMART & 5W1H</div>
+                </div>
+                <div className="text-right">
+                  <span
+                    className={`text-2xl font-black font-mono ${
+                      submittedScore >= 80 ? "text-emerald-700" : submittedScore >= 60 ? "text-amber-600" : "text-rose-600"
+                    }`}
+                  >
+                    {submittedScore}/100
+                  </span>
+                </div>
+              </div>
+
+              {/* Notice about edit permissions */}
+              <div className="text-[11px] text-slate-500 bg-teal-50/50 p-3 rounded-lg border border-teal-100 text-left">
+                💡 <strong>Lưu ý:</strong> Nhóm vẫn có thể chỉnh sửa và bấm <strong>&quot;✓ Cập nhật bài nộp&quot;</strong> để nộp đè bản mới nhất khi thời gian 25 phút trên lớp vẫn còn.
+              </div>
+
+              {/* Action Buttons */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                <button
+                  onClick={() => setSubmitSuccess(false)}
+                  className="w-full py-2.5 px-4 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition border border-slate-300"
+                >
+                  ← Xem lại bài làm
+                </button>
+                <Link
+                  href="/portal"
+                  className="w-full py-2.5 px-4 rounded-lg bg-[#00685E] hover:bg-teal-700 text-white text-xs font-bold transition shadow text-center flex items-center justify-center"
+                >
+                  Về Cổng học viên →
+                </Link>
+              </div>
             </div>
-            <p className="text-xs text-slate-200">
-              Kế hoạch phân rã 5W1H của <strong>{plan.department}</strong> đã được ghi nhận vào hệ thống của Giảng viên.
-            </p>
           </div>
         )}
       </div>
