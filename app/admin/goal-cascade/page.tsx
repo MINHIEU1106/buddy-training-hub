@@ -200,7 +200,7 @@ export default function AdminGoalCascadePage() {
                 <th className="p-3 w-56">Khối / Khoa Phòng</th>
                 <th className="p-3 min-w-[240px]">Mục tiêu phân rã của đơn vị (Bước 1)</th>
                 <th className="p-3 min-w-[260px]">Chỉ số Kết quả & Mức cần đạt (Bước 2)</th>
-                <th className="p-3 w-40">Đầu mối đại diện</th>
+                <th className="p-3 w-40">Người đại diện</th>
                 <th className="p-3 w-28 text-center">Chất lượng</th>
                 <th className="p-3 w-24 text-center">Trạng thái</th>
               </tr>
