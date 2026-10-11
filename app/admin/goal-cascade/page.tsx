@@ -96,16 +96,6 @@ export default function AdminGoalCascadePage() {
           >
             Mở Workspace Học Viên ↗
           </Link>
-          <button
-            onClick={() => setScenarioBroadcasted(!scenarioBroadcasted)}
-            className={`text-xs font-bold px-4 py-2 rounded transition shadow font-mono ${
-              scenarioBroadcasted
-                ? "bg-rose-600 text-white hover:bg-rose-700"
-                : "bg-amber-400 text-slate-950 hover:bg-amber-300"
-            }`}
-          >
-            {scenarioBroadcasted ? "✓ Đã Phát Kịch Bản Quý 2" : "⚡ Phát Kịch Bản Mô Phỏng Quý 2"}
-          </button>
         </div>
       </div>
 
@@ -410,14 +400,6 @@ export default function AdminGoalCascadePage() {
                       </li>
                     ))}
                   </ul>
-                </div>
-
-                <div className="p-3 bg-rose-50 border border-rose-200 rounded">
-                  <span className="text-[10px] font-bold text-rose-800 uppercase block mb-1">
-                    Xử lý Kịch bản Mô phỏng Quý 2:
-                  </span>
-                  <p className="text-rose-900"><strong>Nguyên nhân:</strong> {active.data.plan.simulationQ2.rootCause || "(trống)"}</p>
-                  <p className="text-rose-900 mt-1"><strong>Điều chỉnh:</strong> {active.data.plan.simulationQ2.correctiveActions || "(trống)"}</p>
                 </div>
 
                 <div className="p-3 bg-slate-50 border border-slate-200 rounded">

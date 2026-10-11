@@ -383,27 +383,27 @@ export default function GoalCascadeWorkspacePage() {
     let score = 0;
     const checks: { label: string; passed: boolean; desc: string }[] = [];
 
-    // Step 1: Goal stated
+    // Step 1: Goal stated (20đ)
     const s1Passed = plan.step1_goal.trim().length >= 15;
-    score += s1Passed ? 15 : 0;
+    score += s1Passed ? 20 : 0;
     checks.push({
-      label: "Bước 1: Tuyên bố Mục tiêu rõ ràng",
+      label: "Bước 1: Tuyên bố Mục tiêu rõ ràng (20đ)",
       passed: s1Passed,
-      desc: s1Passed ? "Mục tiêu định hướng cụ thể" : "Mục tiêu quá ngắn hoặc chưa rõ định hướng",
+      desc: s1Passed ? "Mục tiêu định hướng cụ thể, đóng góp vào mục tiêu viện" : "Mục tiêu quá ngắn hoặc chưa rõ định hướng",
     });
 
-    // Step 2: Key results quantified (has numbers, baseline, target)
+    // Step 2: Key results quantified (25đ)
     const s2Passed =
       plan.step2_results.length > 0 &&
       plan.step2_results.every((kr) => kr.target && kr.deadline && kr.unit);
-    score += s2Passed ? 20 : 0;
+    score += s2Passed ? 25 : 0;
     checks.push({
-      label: "Bước 2: Kết quả then chốt đạt chuẩn SMART",
+      label: "Bước 2: Kết quả then chốt đạt chuẩn SMART (25đ)",
       passed: s2Passed,
-      desc: s2Passed ? "Đầy đủ chỉ số, đơn vị, mốc cơ sở, giá trị đích và hạn chót" : "Thiếu chỉ số hoặc hạn chót định lượng",
+      desc: s2Passed ? "Đầy đủ chỉ số, đơn vị, mốc hiện tại, mức cần đạt và hạn chót" : "Thiếu chỉ số hoặc hạn chót định lượng",
     });
 
-    // Step 3-6: 5W1H complete, strictly 1 Who per task
+    // Step 3-6: 5W1H complete, strictly 1 Who per task (35đ)
     const s3Passed =
       plan.step3_6_works.length > 0 &&
       plan.step3_6_works.every(
@@ -413,32 +413,23 @@ export default function GoalCascadeWorkspacePage() {
           w.who.trim().length > 3 &&
           w.how.trim().length > 5
       );
-    score += s3Passed ? 30 : 0;
+    score += s3Passed ? 35 : 0;
     checks.push({
-      label: "Bước 3–6: Đầy đủ 5W1H & Độc nhất 1 người chịu trách nhiệm chính (Who)",
+      label: "Bước 3–6: Đầy đủ 5W1H & Đúng 1 người chịu trách nhiệm chính (35đ)",
       passed: s3Passed,
-      desc: s3Passed ? "Mỗi đầu việc có đủ What, Why, How, When, Where và đúng 1 Who" : "Cần hoàn thiện đủ các cột trong bảng 5W1H",
+      desc: s3Passed ? "Mỗi đầu việc có đủ What, Why, How, When, Where và rõ 1 Who" : "Cần hoàn thiện đủ các cột trong bảng 5W1H",
     });
 
-    // Step 7: Monitoring plan with green/yellow/red
+    // Step 7: Monitoring plan with green/yellow/red (20đ)
     const s7Passed =
       plan.step7_monitoring.frequency.length > 3 &&
       plan.step7_monitoring.redThreshold.length > 3 &&
       plan.step7_monitoring.deviationAction.length > 10;
     score += s7Passed ? 20 : 0;
     checks.push({
-      label: "Bước 7: Kế hoạch theo dõi & Hành động khắc phục khi lệch",
+      label: "Bước 7: Kế hoạch theo dõi & Hành động ứng phó khi lệch (20đ)",
       passed: s7Passed,
-      desc: s7Passed ? "Có tần suất, phân tầng cảnh báo Xanh/Vàng/Đỏ và phương án dự phòng" : "Chưa có hành động cụ thể khi chỉ số rơi vào ngưỡng Đỏ",
-    });
-
-    // Simulation Q2 response
-    const simPassed = plan.simulationQ2.rootCause.length > 15 && plan.simulationQ2.correctiveActions.length > 20;
-    score += simPassed ? 15 : 0;
-    checks.push({
-      label: "Mô phỏng Quý 2: Phân tích nguyên nhân & Kế hoạch điều chỉnh",
-      passed: simPassed,
-      desc: simPassed ? "Đã đề xuất giải pháp 5W1H khẩn cấp để khắc phục lệch chỉ số" : "Chưa nhập đầy đủ phân tích nguyên nhân và hành động điều chỉnh",
+      desc: s7Passed ? "Có tần suất đo, phân tầng cảnh báo Xanh/Vàng/Đỏ và phương án dự phòng" : "Chưa có hành động cụ thể khi chỉ số rơi vào ngưỡng Đỏ",
     });
 
     return { score, checks };
@@ -638,19 +629,6 @@ export default function GoalCascadeWorkspacePage() {
             3. Cây Phân Rã 4 Cấp (Cascade Tree)
           </button>
           <button
-            onClick={() => setActiveTab("simulation")}
-            className={`px-4 py-2.5 text-xs font-bold uppercase tracking-wider rounded-t-md transition border-b-2 relative ${
-              activeTab === "simulation"
-                ? "border-[#00685E] text-[#00685E] bg-teal-50/50"
-                : "border-transparent text-slate-600 hover:text-slate-900"
-            }`}
-          >
-            4. Mô Phỏng Review Quý 2
-            <span className="ml-1.5 px-1.5 py-0.2 bg-rose-500 text-white text-[9px] font-bold rounded-full animate-pulse">
-              HOT
-            </span>
-          </button>
-          <button
             onClick={() => setActiveTab("rubric")}
             className={`px-4 py-2.5 text-xs font-bold uppercase tracking-wider rounded-t-md transition border-b-2 ${
               activeTab === "rubric"
@@ -658,7 +636,7 @@ export default function GoalCascadeWorkspacePage() {
                 : "border-transparent text-slate-600 hover:text-slate-900"
             }`}
           >
-            5. Tiêu Chuẩn SMART & Bảng Điểm
+            4. Tiêu Chuẩn SMART & Bảng Điểm
           </button>
         </div>
 
