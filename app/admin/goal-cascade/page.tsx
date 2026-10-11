@@ -171,6 +171,132 @@ export default function AdminGoalCascadePage() {
         </div>
       </div>
 
+      {/* Bảng Tổng Hợp Mục Tiêu Phân Rã Toàn Viện (Cấp 2 - Khoa/Phòng) */}
+      <div className="bg-white border border-slate-200 rounded-lg p-5 shadow-sm space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b pb-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs bg-[#00685E] text-white font-bold px-2 py-0.5 rounded font-mono">
+                BẢNG TỔNG HỢP TOÀN VIỆN
+              </span>
+              <h2 className="text-sm font-bold text-slate-900 uppercase tracking-tight">
+                Mục Tiêu Phân Rã Về 6 Khối / Khoa Phòng (Đóng góp vào mục tiêu BV ≥ 90%)
+              </h2>
+            </div>
+            <p className="text-xs text-slate-500 mt-1">
+              Hiển thị tức thời mục tiêu đơn vị, chỉ số kết quả then chốt và người chịu trách nhiệm sau khi các nhóm nộp bài
+            </p>
+          </div>
+          <div className="text-xs text-slate-500 font-mono">
+            Đã nộp: <strong className="text-[#00685E] font-bold">{plans.length}</strong> / {GOAL_CASCADE_GROUPS.length} nhóm
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr className="bg-slate-50 text-slate-700 font-bold border-b border-slate-200 text-[11px] uppercase tracking-wider">
+                <th className="p-3 w-12 text-center">STT</th>
+                <th className="p-3 w-56">Khối / Khoa Phòng</th>
+                <th className="p-3 min-w-[240px]">Mục tiêu phân rã của đơn vị (Bước 1)</th>
+                <th className="p-3 min-w-[260px]">Chỉ số Kết quả & Mức cần đạt (Bước 2)</th>
+                <th className="p-3 w-40">Đầu mối đại diện</th>
+                <th className="p-3 w-28 text-center">Chất lượng</th>
+                <th className="p-3 w-24 text-center">Trạng thái</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-200">
+              {GOAL_CASCADE_GROUPS.map((groupName, idx) => {
+                const p = planOf(idx);
+                return (
+                  <tr
+                    key={groupName}
+                    onClick={() => setSelectedGroup(idx)}
+                    className={`cursor-pointer transition ${
+                      selectedGroup === idx ? "bg-teal-50/60 font-medium" : "hover:bg-slate-50"
+                    }`}
+                  >
+                    <td className="p-3 text-center font-mono font-bold text-slate-500">{idx + 1}</td>
+                    <td className="p-3 font-bold text-slate-900">
+                      <div>{groupName}</div>
+                      {p && (
+                        <span className="text-[10px] text-slate-400 font-normal">
+                          Nộp: {new Date(p.submittedAt).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}
+                        </span>
+                      )}
+                    </td>
+                    <td className="p-3 text-slate-800">
+                      {p ? (
+                        <p className="line-clamp-2">{p.data.plan.step1_goal || "—"}</p>
+                      ) : (
+                        <span className="text-slate-400 italic">Đang làm bài, chưa nộp...</span>
+                      )}
+                    </td>
+                    <td className="p-3 text-slate-700">
+                      {p && p.data.plan.step2_results && p.data.plan.step2_results.length > 0 ? (
+                        <div className="space-y-1">
+                          {p.data.plan.step2_results.map((kr, kIdx) => (
+                            <div key={kIdx} className="text-[11px] flex items-start gap-1">
+                              <span className="text-teal-700 font-bold">•</span>
+                              <span>
+                                {kr.indicator}:{" "}
+                                <strong className="text-slate-900 font-mono">
+                                  {kr.baseline} → {kr.target} {kr.unit}
+                                </strong>
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <span className="text-slate-400 italic">—</span>
+                      )}
+                    </td>
+                    <td className="p-3 text-slate-800">
+                      {p ? (
+                        <div>
+                          <div className="font-semibold text-slate-900">{p.submittedByName}</div>
+                          <span className="text-[10px] text-slate-500 font-mono">Mã: {p.submittedByCode}</span>
+                        </div>
+                      ) : (
+                        <span className="text-slate-400">—</span>
+                      )}
+                    </td>
+                    <td className="p-3 text-center">
+                      {p ? (
+                        <span
+                          className={`font-mono font-bold text-xs px-2 py-0.5 rounded ${
+                            p.score >= 90
+                              ? "bg-emerald-100 text-emerald-800"
+                              : p.score >= 80
+                              ? "bg-amber-100 text-amber-800"
+                              : "bg-rose-100 text-rose-800"
+                          }`}
+                        >
+                          {p.score}đ
+                        </span>
+                      ) : (
+                        <span className="text-slate-400">—</span>
+                      )}
+                    </td>
+                    <td className="p-3 text-center">
+                      {p ? (
+                        <span className="inline-block text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-mono">
+                          ĐÃ NỘP
+                        </span>
+                      ) : (
+                        <span className="inline-block text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-500 font-mono">
+                          CHƯA
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       {/* Main Teams Progress Grid */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
         {/* Teams List (Col 5) */}
