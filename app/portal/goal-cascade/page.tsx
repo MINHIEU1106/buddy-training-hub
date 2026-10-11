@@ -194,7 +194,7 @@ export default function GoalCascadeWorkspacePage() {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [submitSuccess, setSubmitSuccess] = useState<boolean>(false);
   const [autoSaveMsg, setAutoSaveMsg] = useState<string>("Đã tự động lưu nháp");
-  const [activeTimer, setActiveTimer] = useState<number>(1800); // 30 mins
+  const [activeTimer, setActiveTimer] = useState<number>(1500); // 25 mins
   const [isTimerRunning, setIsTimerRunning] = useState<boolean>(true);
   const [teacherComment, setTeacherComment] = useState<string>("");
 
