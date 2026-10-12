@@ -116,6 +116,24 @@ export default function AssignmentSubmitPage() {
             </p>
           </div>
 
+          {/* BTVN Online Tool Quick Suggestion */}
+          <div className="bg-gradient-to-r from-blue-950 to-indigo-950 border border-blue-600/80 p-4 rounded-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+            <div>
+              <div className="font-bold text-blue-300 uppercase tracking-wider mb-0.5">
+                ✦ BẠN MUỐN LÀM BTVN THEO FORMAT 3 BƯỚC NHƯ TRÊN LỚP?
+              </div>
+              <p className="text-slate-300 text-[11px]">
+                Sử dụng Biểu mẫu Trực tuyến (Mục tiêu 2027 $\rightarrow$ Kết quả then chốt $\rightarrow$ 5W1H) có sẵn dữ liệu gợi ý và lưu nháp tự động.
+              </p>
+            </div>
+            <Link
+              href="/portal/homework-plan"
+              className="bg-blue-600 hover:bg-blue-500 text-white font-bold text-[11px] uppercase tracking-wider px-3.5 py-2 rounded shadow whitespace-nowrap"
+            >
+              LÀM TRỰC TUYẾN →
+            </Link>
+          </div>
+
           {/* Security Alert Box */}
           <div className="bg-amber-950/60 border border-amber-800 text-amber-200 p-4 rounded-lg text-xs leading-relaxed">
             <div className="font-bold uppercase tracking-wider mb-1 text-amber-300">

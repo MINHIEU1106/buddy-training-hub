@@ -92,6 +92,9 @@ export async function POST(req: NextRequest) {
       filePath = `/uploads/submissions/${savedFileName}`;
       fileName = file.name;
       fileSize = file.size;
+    } else if (type === "ONLINE_FORM") {
+      finalUrl = `/portal/homework-plan?code=${encodeURIComponent(student.studentCode)}`;
+      fileName = "Bản kế hoạch 3 bước trực tuyến";
     } else {
       return NextResponse.json({ error: "Loại hình nộp bài không hợp lệ" }, { status: 400 });
     }

@@ -189,7 +189,7 @@ export default function AdminAssignmentsPage() {
                               </span>
                             </div>
                             <div className="text-[11px] text-slate-400 mt-0.5">
-                              {sub.student.department} • Phiên bản {sub.version} • {sub.type === "LINK" ? "Link online" : "File upload"}
+                              {sub.student.department} • Phiên bản {sub.version} • {sub.type === "ONLINE_FORM" ? "Biểu mẫu 3 bước" : sub.type === "LINK" ? "Link online" : "File upload"}
                             </div>
                           </div>
 
@@ -252,11 +252,90 @@ export default function AdminAssignmentsPage() {
                 <div className="flex justify-between items-center">
                   <span className="font-bold text-slate-300 uppercase">HÌNH THỨC NỘP:</span>
                   <span className="font-code font-bold text-emerald-400 whitespace-nowrap">
-                    {selectedSubmission.type === "LINK" ? "ĐƯỜNG LINK ONLINE" : "TẬP TIN UPLOAD"}
+                    {selectedSubmission.type === "ONLINE_FORM"
+                      ? "BIỂU MẪU 3 BƯỚC TRỰC TUYẾN"
+                      : selectedSubmission.type === "LINK"
+                      ? "ĐƯỜNG LINK ONLINE"
+                      : "TẬP TIN UPLOAD"}
                   </span>
                 </div>
 
-                {selectedSubmission.type === "LINK" ? (
+                {selectedSubmission.type === "ONLINE_FORM" ? (
+                  <div className="space-y-3">
+                    <div className="text-slate-300 font-bold flex items-center justify-between">
+                      <span>BẢNG KẾ HOẠCH CÁ NHÂN (QUY TRÌNH 3 BƯỚC):</span>
+                      {selectedSubmission.contentUrl && (
+                        <a
+                          href={selectedSubmission.contentUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[11px] bg-blue-600 hover:bg-blue-500 text-white font-bold px-2 py-0.5 rounded uppercase"
+                        >
+                          Mở giao diện cá nhân →
+                        </a>
+                      )}
+                    </div>
+                    {(() => {
+                      try {
+                        const parsed = JSON.parse(selectedSubmission.note || "{}");
+                        return (
+                          <div className="space-y-3 bg-slate-900 p-3 rounded-lg border border-slate-800 text-[11px]">
+                            <div>
+                              <div className="text-amber-400 font-bold uppercase tracking-wider text-[10px]">
+                                BƯỚC 1: TUYÊN BỐ MỤC TIÊU 2027
+                              </div>
+                              <p className="text-white font-medium mt-0.5 bg-slate-950 p-2 rounded border border-slate-800">
+                                {parsed.step1_goal || "Chưa nhập"}
+                              </p>
+                            </div>
+
+                            <div>
+                              <div className="text-teal-400 font-bold uppercase tracking-wider text-[10px]">
+                                BƯỚC 2: KẾT QUẢ MONG MUỐN (KEY RESULTS)
+                              </div>
+                              <div className="space-y-1 mt-0.5">
+                                {parsed.step2_results?.map((kr: any, kIdx: number) => (
+                                  <div key={kIdx} className="bg-slate-950 p-1.5 rounded border border-slate-800 flex justify-between">
+                                    <span>• {kr.indicator}</span>
+                                    <strong className="text-slate-200 font-mono">
+                                      {kr.baseline} → {kr.target} {kr.unit} ({kr.deadline})
+                                    </strong>
+                                  </div>
+                                )) || <span className="text-slate-500 italic">Chưa có chỉ số</span>}
+                              </div>
+                            </div>
+
+                            <div>
+                              <div className="text-emerald-400 font-bold uppercase tracking-wider text-[10px]">
+                                BƯỚC 3: KẾ HOẠCH HÀNH ĐỘNG (5W1H)
+                              </div>
+                              <div className="space-y-1.5 mt-0.5">
+                                {parsed.step3_6_works?.map((w: any, wIdx: number) => (
+                                  <div key={wIdx} className="bg-slate-950 p-2 rounded border border-slate-800 space-y-1">
+                                    <div className="font-bold text-white flex justify-between">
+                                      <span>#{wIdx + 1}. {w.taskName}</span>
+                                      <span className="text-[10px] text-slate-400 font-mono">{w.whenStart} → {w.whenEnd}</span>
+                                    </div>
+                                    <div className="text-slate-300"><strong>What:</strong> {w.what}</div>
+                                    <div className="text-slate-400 text-[10px]">
+                                      <span>Who: {w.who}</span> | <span>Phối hợp: {w.coOwners}</span> | <span>Đo lường: {w.metric}</span>
+                                    </div>
+                                  </div>
+                                )) || <span className="text-slate-500 italic">Chưa có công việc</span>}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      } catch (e) {
+                        return (
+                          <div className="p-3 bg-slate-900 rounded text-slate-400 font-mono text-[11px] whitespace-pre-wrap">
+                            {selectedSubmission.note}
+                          </div>
+                        );
+                      }
+                    })()}
+                  </div>
+                ) : selectedSubmission.type === "LINK" ? (
                   <div className="space-y-2">
                     <div className="text-slate-400">Đường link bài làm:</div>
                     <a
@@ -282,7 +361,7 @@ export default function AdminAssignmentsPage() {
                   </div>
                 )}
 
-                {selectedSubmission.note && (
+                {selectedSubmission.type !== "ONLINE_FORM" && selectedSubmission.note && (
                   <div className="pt-2 border-t border-slate-800">
                     <span className="text-slate-400 block mb-1">Ghi chú từ học viên:</span>
                     <span className="text-slate-200 italic">"{selectedSubmission.note}"</span>

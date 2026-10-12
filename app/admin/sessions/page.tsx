@@ -538,7 +538,8 @@ export default function AdminSessionsPage() {
                     onChange={(e) => setAssignFormData({ ...assignFormData, allowedFormat: e.target.value })}
                     className="w-full text-xs bg-slate-950 border border-slate-700 text-white p-2.5 rounded-lg font-code"
                   >
-                    <option value="BOTH">Link & File upload (Cả hai)</option>
+                    <option value="BOTH">Link, File & Form Online (Mặc định)</option>
+                    <option value="ONLINE">Biểu mẫu 3 bước trực tuyến</option>
                     <option value="LINK">Chỉ nộp Link (Docs/Drive/Canva)</option>
                     <option value="FILE">Chỉ nộp File (PDF/DOCX/Ảnh)</option>
                   </select>

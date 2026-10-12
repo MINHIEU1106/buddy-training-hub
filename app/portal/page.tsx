@@ -173,13 +173,13 @@ export default function StudentPortalPage() {
                   <span className="text-[10px] bg-amber-400 text-slate-950 font-black px-2 py-0.5 rounded uppercase tracking-wider font-mono">
                     THỰC HÀNH TRÊN LỚP • BUỔI 2
                   </span>
-                  <span className="text-xs font-bold text-teal-300">GOAL CASCADE WORKSPACE</span>
+                  <span className="text-xs font-bold text-teal-300">GOAL CASCADE WORKSPACE (NHÓM)</span>
                 </div>
                 <h3 className="text-base font-bold text-white tracking-tight">
-                  Công Cụ Phân Rã Mục Tiêu BV & Lập Kế Hoạch 5W1H (Quy Trình 3 Bước)
+                  Công Cụ Phân Rã Mục Tiêu BV & Lập Kế Hoạch 5W1H (Quy Trình 3 Bước - 8 Nhóm)
                 </h3>
                 <p className="text-xs text-teal-100 max-w-2xl">
-                  Mục tiêu gốc: <strong>&quot;Tỷ lệ người bệnh hài lòng ≥ 90%&quot;</strong>. Phân rã mục tiêu theo nhóm Khoa/Phòng, lập kế hoạch hành động 5W1H, sơ đồ Gantt và bảng theo dõi chỉ tiêu.
+                  Mục tiêu gốc: <strong>&quot;Tỷ lệ người bệnh hài lòng ≥ 90%&quot;</strong>. Phân rã mục tiêu theo 8 nhóm Khoa/Phòng/Đơn vị, lập kế hoạch hành động 5W1H, sơ đồ Gantt và bảng theo dõi chỉ tiêu.
                 </p>
               </div>
 
@@ -187,7 +187,32 @@ export default function StudentPortalPage() {
                 href="/portal/goal-cascade"
                 className="w-full md:w-auto text-center bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black uppercase tracking-wider px-5 py-3 rounded-lg shadow-lg transition transform hover:-translate-y-0.5 whitespace-nowrap font-mono"
               >
-                VÀO LÀM BÀI THỰC HÀNH →
+                VÀO LÀM BÀI TRÊN LỚP →
+              </Link>
+            </div>
+
+            {/* Session 2 Homework: Personal Goal Cascade Workspace */}
+            <div className="bg-gradient-to-r from-blue-950 via-indigo-950 to-slate-900 border-2 border-blue-500/80 p-5 rounded-xl shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] bg-blue-500 text-white font-black px-2 py-0.5 rounded uppercase tracking-wider font-mono">
+                    BÀI TẬP VỀ NHÀ • BUỔI 2
+                  </span>
+                  <span className="text-xs font-bold text-blue-300">BTVN LẬP KẾ HOẠCH CÁ NHÂN 2027</span>
+                </div>
+                <h3 className="text-base font-bold text-white tracking-tight">
+                  Biểu Mẫu Lập Kế Hoạch Cá Nhân / Khoa Phòng (Đầy Đủ 3 Bước Online)
+                </h3>
+                <p className="text-xs text-blue-100 max-w-2xl">
+                  Nhân bản chuẩn format bài tập trên lớp: Xác định mục tiêu cá nhân 2027 $\rightarrow$ Chỉ số kết quả then chốt $\rightarrow$ Kế hoạch hành động 5W1H chi tiết của riêng bạn.
+                </p>
+              </div>
+
+              <Link
+                href="/portal/homework-plan"
+                className="w-full md:w-auto text-center bg-blue-500 hover:bg-blue-400 text-white text-xs font-black uppercase tracking-wider px-5 py-3 rounded-lg shadow-lg transition transform hover:-translate-y-0.5 whitespace-nowrap font-mono"
+              >
+                LÀM BTVN ONLINE (3 BƯỚC) →
               </Link>
             </div>
 
@@ -418,12 +443,20 @@ export default function StudentPortalPage() {
                             )}
 
                             {/* Action Submit / Resubmit */}
-                            <div className="pt-2 flex justify-end">
+                            <div className="pt-2 flex flex-wrap justify-end gap-2">
+                              {sess.sessionNumber === 2 && assign.type === "POST_SESSION" && (
+                                <Link
+                                  href="/portal/homework-plan"
+                                  className="inline-block bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider py-2.5 px-4 rounded-lg whitespace-nowrap transition-colors shadow"
+                                >
+                                  LÀM BTVN ONLINE (3 BƯỚC) →
+                                </Link>
+                              )}
                               <Link
                                 href={`/portal/submit/${assign.id}`}
-                                className="inline-block bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs uppercase tracking-wider py-2.5 px-5 rounded-lg whitespace-nowrap transition-colors shadow"
+                                className="inline-block bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs uppercase tracking-wider py-2.5 px-4 rounded-lg whitespace-nowrap transition-colors shadow"
                               >
-                                {latestSub ? "NỘP LẠI BẢN MỚI (UPDATE)" : "TIẾN HÀNH NỘP BÀI"}
+                                {latestSub ? "NỘP LẠI FILE / LINK (UPDATE)" : "NỘP FILE / LINK"}
                               </Link>
                             </div>
                           </div>
