@@ -142,14 +142,14 @@ export default function AssignmentSubmitPage() {
             {/* Student Code Input */}
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">
-                MÃ HỌC VIÊN CỦA BẠN (6 KÝ TỰ)
+                MÃ HỌC VIÊN / SỐ THỨ TỰ CỦA BẠN (VD: HV01 HOẶC 01)
               </label>
               <input
                 type="text"
                 maxLength={10}
                 value={studentCode}
                 onChange={(e) => setStudentCode(e.target.value.toUpperCase())}
-                placeholder="VD: K7M4PX"
+                placeholder="VD: HV01 hoặc 01"
                 className="w-full font-code text-lg font-bold tracking-widest bg-slate-900 border border-slate-600 focus:border-blue-500 text-white py-2.5 px-4 rounded-lg uppercase"
                 required
               />

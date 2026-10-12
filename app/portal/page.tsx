@@ -94,7 +94,7 @@ export default function StudentPortalPage() {
               </span>
               <h2 className="text-2xl font-bold text-white">TRUY CẬP TRANG CÁ NHÂN</h2>
               <p className="text-xs text-slate-400 mt-2">
-                Nhập mã định danh 6 ký tự được Buddy hoặc Bệnh viện cấp
+                Nhập số thứ tự hoặc mã định danh (VD: 01, HV01...)
               </p>
             </div>
 
@@ -108,14 +108,14 @@ export default function StudentPortalPage() {
             <form onSubmit={handleSearch} className="space-y-4">
               <div>
                 <label className="block text-xs font-bold uppercase text-slate-300 mb-2">
-                  MÃ HỌC VIÊN (6 KÝ TỰ)
+                  MÃ HỌC VIÊN / SỐ THỨ TỰ (VD: HV01 HOẶC 01)
                 </label>
                 <input
                   type="text"
                   maxLength={10}
                   value={inputCode}
                   onChange={(e) => setInputCode(e.target.value.toUpperCase())}
-                  placeholder="VD: K7M4PX"
+                  placeholder="VD: HV01 hoặc 01"
                   className="w-full text-center font-code text-2xl font-bold tracking-widest bg-slate-900 border-2 border-slate-600 focus:border-blue-500 focus:outline-none text-white py-3 px-4 rounded-lg uppercase"
                 />
               </div>

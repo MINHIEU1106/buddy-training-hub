@@ -206,7 +206,7 @@ export default function GoalCascadeWorkspacePage() {
   const [plan, setPlan] = useState<GoalPlan>({
     department: SAMPLE_DEPARTMENTS[0].name,
     managerName: "BS. CKII Nguyễn Văn An",
-    studentCode: "K7M4PX",
+    studentCode: "HV01",
     level: "KHOA_PHONG",
     step1_goal: SAMPLE_DEPARTMENTS[0].goal,
     step2_results: [
