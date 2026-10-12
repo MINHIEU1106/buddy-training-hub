@@ -205,7 +205,7 @@ export default function ProjectorLiveBoardPage() {
           <div className="w-full bg-slate-950 p-4 rounded-xl border border-slate-800 text-xs space-y-1">
             <div className="text-slate-400">Không quét được camera? Truy cập trình duyệt:</div>
             <div className="font-code font-bold text-emerald-400 text-sm">
-              buddy.edu.vn/checkin
+              {session.checkOutStatus === "OPEN" ? "buddytrain.netlify.app/checkout" : "buddytrain.netlify.app/checkin"}
             </div>
             <div className="text-slate-400 pt-1">
               Mã buổi học nhập tay: <span className="font-code font-bold text-white text-sm bg-slate-800 px-2 py-0.5 rounded">{session.sessionCode}</span>
