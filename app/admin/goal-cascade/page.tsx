@@ -52,8 +52,6 @@ export default function AdminGoalCascadePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedGroup, plans.length]);
 
-  const avgScore = plans.length ? (plans.reduce((s, p) => s + p.score, 0) / plans.length).toFixed(1) : "0";
-
   const handleSaveComment = async () => {
     setSavingComment(true);
     const res = await fetch("/api/goal-cascade", {
@@ -137,9 +135,11 @@ export default function AdminGoalCascadePage() {
             <div className="text-[11px] text-slate-500">Tự làm mới mỗi 15 giây</div>
           </div>
           <div className="text-right">
-            <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">Điểm chất lượng TB</div>
-            <div className="text-2xl font-black text-emerald-700 font-mono mt-1">{avgScore} / 100</div>
-            <div className="text-[11px] text-slate-500">Trên các nhóm đã nộp</div>
+            <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">Trạng thái</div>
+            <div className="text-sm font-bold text-emerald-700 mt-1">
+              {plans.length === GOAL_CASCADE_GROUPS.length ? "✓ Đã đủ 100% nhóm" : `Còn ${GOAL_CASCADE_GROUPS.length - plans.length} nhóm chưa nộp`}
+            </div>
+            <div className="text-[11px] text-slate-500">Quy trình 3 bước</div>
           </div>
         </div>
 
@@ -189,10 +189,9 @@ export default function AdminGoalCascadePage() {
                 <th className="p-3 w-12 text-center">STT</th>
                 <th className="p-3 w-56">Khối / Khoa Phòng</th>
                 <th className="p-3 min-w-[240px]">Mục tiêu phân rã của đơn vị (Bước 1)</th>
-                <th className="p-3 min-w-[260px]">Chỉ số Kết quả & Mức cần đạt (Bước 2)</th>
+                <th className="p-3 min-w-[260px]">Chỉ số Kết quả mong muốn & Mức mục tiêu (Bước 2)</th>
                 <th className="p-3 w-40">Người đại diện</th>
-                <th className="p-3 w-28 text-center">Chất lượng</th>
-                <th className="p-3 w-24 text-center">Trạng thái</th>
+                <th className="p-3 w-28 text-center">Trạng thái</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200">
@@ -253,23 +252,6 @@ export default function AdminGoalCascadePage() {
                     </td>
                     <td className="p-3 text-center">
                       {p ? (
-                        <span
-                          className={`font-mono font-bold text-xs px-2 py-0.5 rounded ${
-                            p.score >= 90
-                              ? "bg-emerald-100 text-emerald-800"
-                              : p.score >= 80
-                              ? "bg-amber-100 text-amber-800"
-                              : "bg-rose-100 text-rose-800"
-                          }`}
-                        >
-                          {p.score}đ
-                        </span>
-                      ) : (
-                        <span className="text-slate-400">—</span>
-                      )}
-                    </td>
-                    <td className="p-3 text-center">
-                      {p ? (
                         <span className="inline-block text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-mono">
                           ĐÃ NỘP
                         </span>
@@ -311,42 +293,22 @@ export default function AdminGoalCascadePage() {
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-slate-900">{name}</span>
                     {p ? (
-                      <span
-                        className={`text-xs font-mono font-bold px-2 py-0.5 rounded ${
-                          p.score >= 90
-                            ? "bg-emerald-100 text-emerald-800"
-                            : p.score >= 80
-                            ? "bg-amber-100 text-amber-800"
-                            : "bg-rose-100 text-rose-800"
-                        }`}
-                      >
-                        {p.score}đ
+                      <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-mono">
+                        ✓ Đã nộp
                       </span>
                     ) : (
-                      <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-500">
+                      <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-500 font-mono">
                         Chưa nộp
                       </span>
                     )}
                   </div>
 
                   {p && (
-                    <>
-                      <div className="text-[11px] text-slate-500 mt-1">
-                        Người nộp: <strong className="text-slate-800">{p.submittedByName}</strong> ·{" "}
-                        {new Date(p.submittedAt).toLocaleTimeString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" })}
-                        {p.comment ? " · Đã nhận xét" : ""}
-                      </div>
-                      {/* Tiêu chí đạt / chưa đạt */}
-                      <div className="flex items-center gap-1 mt-2.5">
-                        {p.data.checks.map((c, i) => (
-                          <span
-                            key={i}
-                            className={`h-1.5 flex-1 rounded-full ${c.passed ? "bg-[#00685E]" : "bg-slate-200"}`}
-                            title={`${c.label}: ${c.passed ? "Đạt" : "Chưa đạt"}`}
-                          />
-                        ))}
-                      </div>
-                    </>
+                    <div className="text-[11px] text-slate-500 mt-1">
+                      Người nộp: <strong className="text-slate-800">{p.submittedByName}</strong> ·{" "}
+                      {new Date(p.submittedAt).toLocaleTimeString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" })}
+                      {p.comment ? " · Đã nhận xét" : ""}
+                    </div>
                   )}
                 </div>
               );
@@ -363,7 +325,7 @@ export default function AdminGoalCascadePage() {
             <h3 className="text-base font-bold text-slate-900 mt-1">{GOAL_CASCADE_GROUPS[selectedGroup]}</h3>
             {active && (
               <p className="text-xs text-slate-500">
-                Người nộp: {active.submittedByName} ({active.submittedByCode}) · Điểm: {active.score}/100
+                Người nộp: {active.submittedByName} ({active.submittedByCode}) · Trạng thái: <strong className="text-emerald-700">Đã nộp bài</strong>
               </p>
             )}
           </div>
@@ -379,7 +341,7 @@ export default function AdminGoalCascadePage() {
                 </div>
 
                 <div className="p-3 bg-slate-50 border border-slate-200 rounded">
-                  <span className="text-[10px] font-bold text-slate-500 uppercase block mb-1">Bước 2 – Kết quả:</span>
+                  <span className="text-[10px] font-bold text-slate-500 uppercase block mb-1">Bước 2 – Kết quả mong muốn:</span>
                   <ul className="list-disc pl-4 text-slate-700 space-y-0.5">
                     {active.data.plan.step2_results.map((kr, i) => (
                       <li key={i}>
@@ -391,7 +353,7 @@ export default function AdminGoalCascadePage() {
 
                 <div className="p-3 bg-slate-50 border border-slate-200 rounded">
                   <span className="text-[10px] font-bold text-slate-500 uppercase block mb-1">
-                    Bước 3–6 – Công việc 5W1H ({active.data.plan.step3_6_works.length} việc):
+                    Bước 3 – Kế hoạch hành động 5W1H ({active.data.plan.step3_6_works.length} việc):
                   </span>
                   <ul className="list-disc pl-4 text-slate-700 space-y-0.5">
                     {active.data.plan.step3_6_works.map((w, i) => (
@@ -400,15 +362,6 @@ export default function AdminGoalCascadePage() {
                       </li>
                     ))}
                   </ul>
-                </div>
-
-                <div className="p-3 bg-slate-50 border border-slate-200 rounded">
-                  <span className="text-[10px] font-bold text-slate-500 uppercase block mb-1">Kiểm tra tự động:</span>
-                  {active.data.checks.map((c, i) => (
-                    <div key={i} className={c.passed ? "text-emerald-700" : "text-rose-700"}>
-                      {c.passed ? "✓" : "✗"} {c.label}
-                    </div>
-                  ))}
                 </div>
               </div>
 

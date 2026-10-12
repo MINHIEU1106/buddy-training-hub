@@ -176,10 +176,10 @@ export default function StudentPortalPage() {
                   <span className="text-xs font-bold text-teal-300">GOAL CASCADE WORKSPACE</span>
                 </div>
                 <h3 className="text-base font-bold text-white tracking-tight">
-                  Công Cụ Phân Rã Mục Tiêu BV & Lập Kế Hoạch 5W1H (Quy Trình 7 Bước)
+                  Công Cụ Phân Rã Mục Tiêu BV & Lập Kế Hoạch 5W1H (Quy Trình 3 Bước)
                 </h3>
                 <p className="text-xs text-teal-100 max-w-2xl">
-                  Mục tiêu gốc: <strong>&quot;Tỷ lệ người bệnh hài lòng ≥ 90% (Baseline 84%)&quot;</strong>. Phân rã theo nhóm Khoa/Phòng, kiểm tra SMART tự động và xử lý kịch bản mô phỏng Quý 2.
+                  Mục tiêu gốc: <strong>&quot;Tỷ lệ người bệnh hài lòng ≥ 90%&quot;</strong>. Phân rã mục tiêu theo nhóm Khoa/Phòng, lập kế hoạch hành động 5W1H, sơ đồ Gantt và bảng theo dõi chỉ tiêu.
                 </p>
               </div>
 
