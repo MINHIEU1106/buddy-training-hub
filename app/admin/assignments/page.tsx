@@ -57,6 +57,8 @@ export default function AdminAssignmentsPage() {
     setSaveSuccess(false);
   };
 
+  const [notificationMsg, setNotificationMsg] = useState<string | null>(null);
+
   const handleSaveReview = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedSubmission) return;
@@ -77,8 +79,13 @@ export default function AdminAssignmentsPage() {
 
       if (res.ok) {
         setSaveSuccess(true);
+        const gradeText = grade === "XUAT_SAC" ? "XUẤT SẮC" : grade === "DAT" ? "ĐẠT" : "CẦN SỬA";
+        const studentEmail = selectedSubmission.student.email || "Chưa có email";
+        setNotificationMsg(
+          `Đã ghi nhận kết quả và gửi thông báo điểm: Học viên ${selectedSubmission.student.fullName} (${selectedSubmission.student.studentCode}) - Email: ${studentEmail} | Điểm/Xếp loại: [${gradeText}]`
+        );
         await fetchAssignments();
-        setTimeout(() => setSaveSuccess(false), 3000);
+        setTimeout(() => setSaveSuccess(false), 5000);
       } else {
         alert("Lỗi khi lưu nhận xét");
       }
@@ -286,8 +293,13 @@ export default function AdminAssignmentsPage() {
               {/* Review Grading Form */}
               <form onSubmit={handleSaveReview} className="space-y-4">
                 {saveSuccess && (
-                  <div className="p-3 rounded bg-emerald-950 border border-emerald-800 text-emerald-200 text-xs">
-                    ĐÃ LƯU ĐÁNH GIÁ THÀNH CÔNG
+                  <div className="p-3.5 rounded-lg bg-emerald-950/90 border border-emerald-500 text-emerald-100 text-xs space-y-1 shadow-md">
+                    <div className="font-bold flex items-center gap-1.5 text-emerald-300">
+                      ✓ ĐÃ LƯU ĐÁNH GIÁ & GỬI THÔNG BÁO ĐIỂM THÀNH CÔNG!
+                    </div>
+                    <p className="text-[11px] text-emerald-200">
+                      {notificationMsg}
+                    </p>
                   </div>
                 )}
 
