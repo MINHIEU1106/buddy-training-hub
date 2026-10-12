@@ -87,6 +87,17 @@ export async function GET(req: NextRequest) {
 
     wsAtt.getRow(3).height = 10;
 
+    const sessionHeaderNames = sessions.map((sess) => {
+      let dateLabel = "";
+      if (sess.date) {
+        const parts = sess.date.split("-");
+        if (parts.length === 3) {
+          dateLabel = ` (${parts[2]}/${parts[1]})`;
+        }
+      }
+      return `BUỔI ${sess.sessionNumber}${dateLabel}`;
+    });
+
     const attHeaders = [
       "STT",
       "MÃ HỌC VIÊN",
@@ -94,10 +105,7 @@ export async function GET(req: NextRequest) {
       "CHỨC DANH",
       "KHOA / PHÒNG",
       "CẤP QUẢN LÝ",
-      "BUỔI 1 (10/10)",
-      "BUỔI 2 (15/10)",
-      "BUỔI 3 (22/10)",
-      "BUỔI 4 (29/10)",
+      ...sessionHeaderNames,
       "TỔNG BUỔI CÓ MẶT",
       "TỶ LỆ CHUYÊN CẦN",
       "ĐÁNH GIÁ",
