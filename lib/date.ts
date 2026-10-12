@@ -42,3 +42,28 @@ export function formatDateTimeVN(date: Date | string | null | undefined): string
 export function getNowInVN(): Date {
   return new Date();
 }
+
+/**
+ * Lấy phút trong ngày theo giờ Việt Nam (0 - 1439 phút)
+ */
+export function getVNMinutesOfDay(date: Date = new Date()): number {
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Ho_Chi_Minh",
+    hour: "numeric",
+    minute: "numeric",
+    hour12: false,
+  });
+  const parts = formatter.formatToParts(date);
+  const hour = Number(parts.find((p) => p.type === "hour")?.value || 0);
+  const minute = Number(parts.find((p) => p.type === "minute")?.value || 0);
+  return hour * 60 + minute;
+}
+
+/**
+ * Chuyển chuỗi "HH:mm" thành số phút trong ngày (0 - 1439)
+ */
+export function parseTimeToMinutes(timeStr: string): number {
+  if (!timeStr) return 0;
+  const [h, m] = timeStr.split(":").map(Number);
+  return (h || 0) * 60 + (m || 0);
+}

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { normalizeCode } from "@/lib/code-generator";
+import { getVNMinutesOfDay, parseTimeToMinutes } from "@/lib/date";
 
 export async function POST(req: NextRequest) {
   try {
@@ -82,17 +83,15 @@ export async function POST(req: NextRequest) {
     const checkInTime = new Date(existingAttendance.checkInAt).getTime();
     const durationMins = Math.max(1, Math.round((now.getTime() - checkInTime) / 60000));
 
-    // Xác định về sớm hay hoàn thành
+    // Xác định về sớm hay hoàn thành theo giờ Việt Nam
     let checkOutStatus = "COMPLETED";
     if (session.endTime) {
-      const [endHour, endMin] = session.endTime.split(":").map(Number);
-      const sessionEnd = new Date(now);
-      sessionEnd.setHours(endHour, endMin, 0, 0);
+      const currentMinutes = getVNMinutesOfDay(now);
+      const endMinutes = parseTimeToMinutes(session.endTime);
+      const earlyThresholdMins = session.earlyLeaveThresholdMins || 15;
+      const earlyLeaveDeadlineMinutes = endMinutes - earlyThresholdMins;
 
-      const earlyThresholdMs = (session.earlyLeaveThresholdMins || 15) * 60 * 1000;
-      const earlyLeaveDeadline = new Date(sessionEnd.getTime() - earlyThresholdMs);
-
-      if (now.getTime() < earlyLeaveDeadline.getTime()) {
+      if (currentMinutes < earlyLeaveDeadlineMinutes) {
         checkOutStatus = "EARLY_LEAVE";
       }
     }

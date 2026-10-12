@@ -97,19 +97,18 @@ function CheckInForm() {
               />
             </div>
 
-            {sessionCode && (
-              <div>
-                <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1">
-                  MÃ BUỔI HỌC
-                </label>
-                <input
-                  type="text"
-                  value={sessionCode}
-                  onChange={(e) => setSessionCode(e.target.value.toUpperCase())}
-                  className="w-full text-center font-code text-sm font-semibold bg-slate-900/60 border border-slate-700 text-slate-300 py-2 px-3 rounded"
-                />
-              </div>
-            )}
+            <div>
+              <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1">
+                MÃ BUỔI HỌC (TÙY CHỌN NẾU NHẬP TAY)
+              </label>
+              <input
+                type="text"
+                value={sessionCode}
+                onChange={(e) => setSessionCode(e.target.value.toUpperCase())}
+                placeholder="Tự động nhận theo buổi đang mở (hoặc nhập VD: BVPD-B1)"
+                className="w-full text-center font-code text-sm font-semibold bg-slate-900/60 border border-slate-700 text-slate-300 py-2.5 px-3 rounded-lg focus:border-emerald-500 focus:outline-none placeholder:text-slate-600"
+              />
+            </div>
 
             <button
               type="submit"

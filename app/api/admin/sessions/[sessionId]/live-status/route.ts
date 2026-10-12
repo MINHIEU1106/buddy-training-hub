@@ -43,7 +43,9 @@ export async function GET(
     const checkedOutCount = session.attendances.filter((a) => a.checkOutAt !== null).length;
 
     // Generate QR code link
-    const origin = req.headers.get("origin") || req.nextUrl.origin || "http://localhost:3000";
+    const host = req.headers.get("x-forwarded-host") || req.headers.get("host");
+    const proto = req.headers.get("x-forwarded-proto") || "https";
+    const origin = req.headers.get("origin") || (host ? `${proto}://${host}` : (req.nextUrl.origin || "https://buddytrain.netlify.app"));
     const checkinUrl = `${origin}/checkin?session=${session.sessionCode}`;
     const checkoutUrl = `${origin}/checkout?session=${session.sessionCode}`;
 

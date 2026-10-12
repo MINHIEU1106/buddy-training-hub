@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { normalizeCode } from "@/lib/code-generator";
+import { getVNMinutesOfDay, parseTimeToMinutes } from "@/lib/date";
 
 export async function POST(req: NextRequest) {
   try {
@@ -102,17 +103,15 @@ export async function POST(req: NextRequest) {
     }
 
     // 4. Tính toán trạng thái: Đúng giờ hay Đi trễ
-    // Giờ bắt đầu buổi học được cấu hình ví dụ "08:00"
+    // Giờ bắt đầu buổi học được cấu hình ví dụ "08:00" theo giờ Việt Nam
     let checkInStatus = "ON_TIME";
     if (session.startTime) {
-      const [startHour, startMin] = session.startTime.split(":").map(Number);
-      const sessionStart = new Date(now);
-      sessionStart.setHours(startHour, startMin, 0, 0);
+      const currentMinutes = getVNMinutesOfDay(now);
+      const startMinutes = parseTimeToMinutes(session.startTime);
+      const lateThresholdMins = session.lateThresholdMins || 15;
+      const lateDeadlineMinutes = startMinutes + lateThresholdMins;
 
-      const lateThresholdMs = (session.lateThresholdMins || 15) * 60 * 1000;
-      const lateDeadline = new Date(sessionStart.getTime() + lateThresholdMs);
-
-      if (now.getTime() > lateDeadline.getTime()) {
+      if (currentMinutes > lateDeadlineMinutes) {
         checkInStatus = "LATE";
       }
     }

@@ -77,19 +77,26 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: "Dung lượng file tối đa là 25MB" }, { status: 400 });
       }
 
-      const uploadDir = path.join(process.cwd(), "public", "uploads", "submissions");
-      await fs.mkdir(uploadDir, { recursive: true });
-
-      const timestamp = Date.now();
-      const sanitizedOriginalName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-      const savedFileName = `${student.studentCode}_${assignment.id.slice(0, 6)}_${timestamp}_${sanitizedOriginalName}`;
-      const fullPath = path.join(uploadDir, savedFileName);
-
       const arrayBuffer = await file.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
-      await fs.writeFile(fullPath, buffer);
 
-      filePath = `/uploads/submissions/${savedFileName}`;
+      try {
+        const uploadDir = path.join(process.cwd(), "public", "uploads", "submissions");
+        await fs.mkdir(uploadDir, { recursive: true });
+
+        const timestamp = Date.now();
+        const sanitizedOriginalName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+        const savedFileName = `${student.studentCode}_${assignment.id.slice(0, 6)}_${timestamp}_${sanitizedOriginalName}`;
+        const fullPath = path.join(uploadDir, savedFileName);
+
+        await fs.writeFile(fullPath, buffer);
+        filePath = `/uploads/submissions/${savedFileName}`;
+      } catch (fsErr) {
+        // Fallback an toàn trên Netlify serverless (hệ thống tệp read-only)
+        console.warn("Serverless read-only filesystem, fallback to Base64 Data URI");
+        filePath = `data:${file.type || "application/octet-stream"};base64,${buffer.toString("base64")}`;
+      }
+
       fileName = file.name;
       fileSize = file.size;
     } else if (type === "ONLINE_FORM") {
