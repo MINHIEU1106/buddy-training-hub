@@ -149,7 +149,7 @@ export default function AdminGoalCascadePage() {
             <span className="text-[10px] font-bold uppercase bg-amber-400 text-slate-900 px-2 py-0.5 rounded font-mono">
               Chế độ Hội trường
             </span>
-            <h3 className="text-xs font-bold mt-1.5">Chiếu Cây Phân Rã & So Sánh 6 Nhóm</h3>
+            <h3 className="text-xs font-bold mt-1.5">Chiếu Cây Phân Rã & So Sánh 8 Nhóm</h3>
           </div>
           <Link
             href="/portal/goal-cascade"
@@ -170,7 +170,7 @@ export default function AdminGoalCascadePage() {
                 BẢNG TỔNG HỢP MỤC TIÊU
               </span>
               <h2 className="text-sm font-bold text-slate-900 uppercase tracking-tight">
-                Mục Tiêu Phân Rã Về 6 Khối / Khoa Phòng (Đóng góp vào mục tiêu BV ≥ 90%)
+                Mục Tiêu Phân Rã Về 8 Khối / Khoa Phòng (Đóng góp vào mục tiêu BV ≥ 90%)
               </h2>
             </div>
             <p className="text-xs text-slate-500 mt-1">
@@ -274,7 +274,7 @@ export default function AdminGoalCascadePage() {
         {/* Teams List (Col 5) */}
         <div className="md:col-span-5 space-y-3">
           <div className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-            Danh sách 6 Nhóm Khoa/Phòng Thực hành
+            Danh sách 8 Nhóm Khoa/Phòng Thực hành
           </div>
 
           <div className="space-y-2">
