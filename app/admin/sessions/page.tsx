@@ -232,7 +232,7 @@ export default function AdminSessionsPage() {
             CẤU HÌNH 4 BUỔI HỌC & BÀI TẬP THỰC HÀNH
           </h1>
           <p className="text-xs text-slate-400 mt-1">
-            Quản lý thông tin buổi học, thiết lập bài tập thực hành trên lớp và bài tập về nhà cho 73 học viên
+            Quản lý thông tin buổi học, thiết lập bài tập thực hành trên lớp và bài tập về nhà cho 80 học viên
           </p>
         </div>
 
@@ -324,7 +324,7 @@ export default function AdminSessionsPage() {
                   <div className="bg-slate-950/60 p-3 rounded-lg border border-slate-800">
                     <span className="text-slate-400 font-semibold uppercase block mb-1">ĐÃ CHECK-IN / CHECK-OUT</span>
                     <span className="text-emerald-400 font-code font-bold">
-                      {checkInCount}/73 in • {checkOutCount} out
+                      {checkInCount}/80 in • {checkOutCount} out
                     </span>
                   </div>
                 </div>
@@ -393,7 +393,7 @@ export default function AdminSessionsPage() {
                                   </span>
                                 )}
                                 <span>
-                                  Đã nộp: <strong className="text-emerald-400">{subCount}/73 bài</strong>
+                                  Đã nộp: <strong className="text-emerald-400">{subCount}/80 bài</strong>
                                 </span>
                               </div>
                             </div>

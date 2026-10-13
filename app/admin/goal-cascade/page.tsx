@@ -75,14 +75,14 @@ export default function AdminGoalCascadePage() {
         <div>
           <div className="flex items-center gap-2">
             <span className="text-xs bg-[#00685E] text-white font-bold px-2.5 py-0.5 rounded font-mono uppercase">
-              Buổi 2 - Đào tạo Quản lý
+              Buổi 1 - Đào tạo Quản lý
             </span>
             <h1 className="text-xl font-bold tracking-tight text-slate-900">
               Điều Phối Live: Công Cụ Phân Rã Mục Tiêu 5W1H (Goal Cascade)
             </h1>
           </div>
           <p className="text-xs text-slate-500 mt-1">
-            Theo dõi tiến độ thực hành trực tiếp của 6 nhóm khoa/phòng, mở khóa từng bước và phát kịch bản mô phỏng
+            Theo dõi tiến độ thực hành trực tiếp của 8 nhóm khoa/phòng, mở khóa từng bước và phát kịch bản mô phỏng
           </p>
         </div>
 

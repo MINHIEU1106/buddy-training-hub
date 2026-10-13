@@ -197,7 +197,7 @@ export default function StudentPortalPage() {
                     MÃ: {studentData.studentCode}
                   </span>
                   <span className="text-[11px] font-bold bg-blue-950 border border-blue-800 text-blue-300 px-2.5 py-0.5 rounded">
-                    {getStudentGroupName(studentData.studentCode)}
+                    {getStudentGroupName(studentData.studentCode, studentData.groupNumber)}
                   </span>
                 </div>
                 <h2 className="text-2xl font-extrabold text-white">
@@ -239,12 +239,12 @@ export default function StudentPortalPage() {
               </div>
             </div>
 
-            {/* Session 2 In-Class Practice Spotlight: Goal Cascade Workspace */}
+            {/* Session 1 In-Class Practice Spotlight: Goal Cascade Workspace */}
             <div className="bg-gradient-to-r from-teal-950 via-teal-900 to-slate-900 border-2 border-teal-500/80 p-5 rounded-xl shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] bg-amber-400 text-slate-950 font-black px-2 py-0.5 rounded uppercase tracking-wider font-mono">
-                    THỰC HÀNH TRÊN LỚP • BUỔI 2
+                    THỰC HÀNH TRÊN LỚP • BUỔI 1
                   </span>
                   <span className="text-xs font-bold text-teal-300">GOAL CASCADE WORKSPACE (NHÓM)</span>
                 </div>
@@ -264,12 +264,12 @@ export default function StudentPortalPage() {
               </Link>
             </div>
 
-            {/* Session 2 Homework: Personal Goal Cascade Workspace */}
+            {/* Session 1 Homework: Personal Goal Cascade Workspace */}
             <div className="bg-gradient-to-r from-blue-950 via-indigo-950 to-slate-900 border-2 border-blue-500/80 p-5 rounded-xl shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] bg-blue-500 text-white font-black px-2 py-0.5 rounded uppercase tracking-wider font-mono">
-                    BÀI TẬP VỀ NHÀ • BUỔI 2
+                    BÀI TẬP VỀ NHÀ • BUỔI 1
                   </span>
                   <span className="text-xs font-bold text-blue-300">BTVN LẬP KẾ HOẠCH CÁ NHÂN 2027</span>
                 </div>
@@ -517,7 +517,15 @@ export default function StudentPortalPage() {
 
                             {/* Action Submit / Resubmit */}
                             <div className="pt-2 flex flex-wrap justify-end gap-2">
-                              {sess.sessionNumber === 2 && assign.type === "POST_SESSION" && (
+                              {assign.type === "IN_SESSION" && (
+                                <Link
+                                  href="/portal/goal-cascade"
+                                  className="inline-block bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs uppercase tracking-wider py-2.5 px-4 rounded-lg whitespace-nowrap transition-colors shadow"
+                                >
+                                  VÀO LÀM BÀI TRÊN LỚP (8 NHÓM) →
+                                </Link>
+                              )}
+                              {assign.type === "POST_SESSION" && (
                                 <Link
                                   href="/portal/homework-plan"
                                   className="inline-block bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider py-2.5 px-4 rounded-lg whitespace-nowrap transition-colors shadow"

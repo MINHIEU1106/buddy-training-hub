@@ -14,17 +14,11 @@ export async function POST(req: NextRequest) {
       managementLevel,
       email,
       phone,
+      groupNumber,
       actorName,
     } = body;
 
-    if (!fullName || !fullName.trim()) {
-      return NextResponse.json(
-        { error: "Họ và tên học viên không được để trống" },
-        { status: 400 }
-      );
-    }
-
-    // Trường hợp cập nhật học viên đã tồn tại
+    // Trường hợp cập nhật học viên đã tồn tại (hỗ trợ cả đổi nhóm nhanh chỉ cần id + groupNumber)
     if (id) {
       const existing = await prisma.student.findUnique({ where: { id } });
       if (!existing) {
@@ -34,17 +28,23 @@ export async function POST(req: NextRequest) {
         );
       }
 
+      const parsedGroup =
+        groupNumber !== undefined && groupNumber !== null && groupNumber !== ""
+          ? Number(groupNumber)
+          : existing.groupNumber;
+
       const updated = await prisma.student.update({
         where: { id },
         data: {
           studentCode: studentCode ? studentCode.trim().toUpperCase() : existing.studentCode,
-          fullName: fullName.trim(),
+          fullName: fullName ? fullName.trim() : existing.fullName,
           title: title !== undefined ? (title?.trim() || null) : existing.title,
           department: department !== undefined ? (department?.trim() || null) : existing.department,
           managementLevel:
             managementLevel !== undefined ? (managementLevel?.trim() || null) : existing.managementLevel,
           email: email !== undefined ? (email?.trim() || null) : existing.email,
           phone: phone !== undefined ? (phone?.trim() || null) : existing.phone,
+          groupNumber: parsedGroup,
         },
       });
 
@@ -59,14 +59,22 @@ export async function POST(req: NextRequest) {
           email: updated.email,
           phone: updated.phone,
           department: updated.department,
+          groupNumber: updated.groupNumber,
         },
       });
 
       return NextResponse.json({
         success: true,
-        message: `Đã cập nhật thông tin học viên ${updated.fullName} (${updated.studentCode})`,
+        message: `Đã cập nhật học viên ${updated.fullName} (${updated.studentCode}) — Nhóm ${updated.groupNumber || "--"}`,
         student: updated,
       });
+    }
+
+    if (!fullName || !fullName.trim()) {
+      return NextResponse.json(
+        { error: "Họ và tên học viên không được để trống" },
+        { status: 400 }
+      );
     }
 
     // Trường hợp thêm mới học viên trực tiếp
@@ -91,6 +99,7 @@ export async function POST(req: NextRequest) {
         managementLevel: managementLevel?.trim() || "Khối Bệnh viện",
         email: email?.trim() || null,
         phone: phone?.trim() || null,
+        groupNumber: groupNumber ? Number(groupNumber) : 1,
         status: "ACTIVE",
       },
     });

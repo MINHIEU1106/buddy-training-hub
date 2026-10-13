@@ -30,8 +30,8 @@ const GROUPS_8_CONFIG = [
     targetHospital: "Tiếp nhận cấp cứu nguy kịch <= 3 phút, an toàn phẫu thuật 100%, chuyển mổ khẩn kịp thời",
     description: "Khoa Cấp cứu, ICU, Khoa Ngoại, Phẫu thuật tạo hình, Gây mê hồi sức, Ngân hàng mô, Tế bào gốc, Ung bướu",
     codeList: [
-      "HV06", "HV10", "HV11", "HV12", "HV13", "HV14", "HV15"
-    ], // 7 cán bộ
+      "HV06", "HV10", "HV11", "HV12", "HV13", "HV14", "HV15", "HV26"
+    ], // 8 cán bộ
   },
   {
     groupIndex: 3,
@@ -50,10 +50,10 @@ const GROUPS_8_CONFIG = [
     funName: "🛡️ TẤM LÁ CHẮN CHUẨN SAO (Điều dưỡng, KSNK & QLCL)",
     slogan: "Giao tiếp AIDET - An toàn chuẩn sao",
     targetHospital: "100% điều dưỡng tuân thủ giao tiếp AIDET, kiểm soát nhiễm khuẩn & quản lý chất lượng 0 lỗi",
-    description: "Lãnh đạo Phòng Điều dưỡng toàn viện, Khoa Kiểm soát nhiễm khuẩn, Phòng Nghiệp vụ KCB & BHYT, Phòng KHTH - QLCL",
+    description: "Lãnh đạo Phòng Điều dưỡng toàn viện, Khoa Kiểm soát nhiễm khuẩn, Phòng KHTH - QLCL",
     codeList: [
-      "HV25", "HV26", "HV28", "HV77", "HV78"
-    ], // 5 cán bộ
+      "HV25", "HV28", "HV77", "HV78"
+    ], // 4 cán bộ
   },
   {
     groupIndex: 5,

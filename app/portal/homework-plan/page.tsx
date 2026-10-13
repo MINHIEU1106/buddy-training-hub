@@ -520,13 +520,17 @@ export default function HomeworkPlanWorkspacePage() {
 
     setIsSubmitting(true);
     try {
-      // Tìm bài tập Buổi 2 BTVN
+      // Tìm bài tập BTVN Buổi 1 (hoặc buổi đầu tiên có bài tập POST_SESSION)
       const meRes = await fetch(`/api/student/me?code=${encodeURIComponent(plan.studentCode)}`);
       const meData = await meRes.json();
       let assignId = "";
       if (meData.student?.course?.sessions) {
-        for (const sess of meData.student.course.sessions) {
-          if (sess.sessionNumber === 2) {
+        const s1 = meData.student.course.sessions.find((s: any) => s.sessionNumber === 1);
+        const s1Post = s1?.assignments?.find((a: any) => a.type === "POST_SESSION");
+        if (s1Post) {
+          assignId = s1Post.id;
+        } else {
+          for (const sess of meData.student.course.sessions) {
             const postAssign = sess.assignments?.find((a: any) => a.type === "POST_SESSION");
             if (postAssign) {
               assignId = postAssign.id;
@@ -537,7 +541,7 @@ export default function HomeworkPlanWorkspacePage() {
       }
 
       if (!assignId) {
-        alert("Không tìm thấy thông tin bài tập về nhà Buổi 2 trong hệ thống.");
+        alert("Không tìm thấy thông tin bài tập về nhà Buổi 1 trong hệ thống.");
         setIsSubmitting(false);
         return;
       }
@@ -585,7 +589,7 @@ export default function HomeworkPlanWorkspacePage() {
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-xs bg-blue-500 text-white font-bold px-2 py-0.5 rounded tracking-wide uppercase">
-                  BÀI TẬP VỀ NHÀ • BUỔI 2
+                  BÀI TẬP VỀ NHÀ • BUỔI 1
                 </span>
                 <h1 className="text-lg font-bold tracking-tight">
                   BTVN: LẬP KẾ HOẠCH CÔNG VIỆC CÁ NHÂN & 5W1H (2027)

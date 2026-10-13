@@ -454,7 +454,7 @@ export default function GoalCascadeWorkspacePage() {
     return null;
   };
 
-  // Mã học viên đăng nhập ở Cổng học viên & tự động chọn đúng nhóm của học viên
+  // Mã học viên đăng nhập ở Cổng học viên & tự động chọn đúng nhóm của học viên (bao gồm nhóm vừa đổi trên DB)
   useEffect(() => {
     const saved = localStorage.getItem("buddy_student_code") || "";
     setPlan((prev) => ({ ...prev, studentCode: saved }));
@@ -463,6 +463,17 @@ export default function GoalCascadeWorkspacePage() {
       if (grpNum && grpNum >= 1 && grpNum <= 8) {
         setSelectedDeptIndex(grpNum - 1);
       }
+      fetch(`/api/student/me?code=${encodeURIComponent(saved)}`)
+        .then((r) => r.json())
+        .then((d) => {
+          if (d.student) {
+            const dbGrp = getStudentGroupNumber(d.student.studentCode, d.student.groupNumber);
+            if (dbGrp && dbGrp >= 1 && dbGrp <= 8) {
+              setSelectedDeptIndex(dbGrp - 1);
+            }
+          }
+        })
+        .catch(() => {});
     }
   }, []);
 
@@ -590,7 +601,7 @@ export default function GoalCascadeWorkspacePage() {
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-xs bg-amber-400 text-slate-900 font-bold px-2 py-0.5 rounded tracking-wide uppercase">
-                  Thực hành Buổi 2
+                  Thực hành Buổi 1
                 </span>
                 <h1 className="text-lg font-bold tracking-tight">
                   Công Cụ Phân Rã Mục Tiêu & Lập Kế Hoạch 5W1H (Goal Cascade)

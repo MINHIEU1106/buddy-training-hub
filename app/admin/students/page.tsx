@@ -33,9 +33,11 @@ export default function StudentManagementPage() {
     managementLevel: "Khối Bệnh viện",
     email: "",
     phone: "",
+    groupNumber: 1,
   });
   const [savingEdit, setSavingEdit] = useState(false);
   const [editMessage, setEditMessage] = useState<string | null>(null);
+  const [switchingGroupId, setSwitchingGroupId] = useState<string | null>(null);
 
   const fetchStudents = async () => {
     setLoading(true);
@@ -60,6 +62,7 @@ export default function StudentManagementPage() {
     setEditMessage(null);
     if (st) {
       setEditingStudent(st);
+      const currentGrp = getStudentGroupNumber(st.studentCode, st.groupNumber) || 1;
       setEditForm({
         id: st.id,
         studentCode: st.studentCode || "",
@@ -69,6 +72,7 @@ export default function StudentManagementPage() {
         managementLevel: st.managementLevel || "Khối Bệnh viện",
         email: st.email || "",
         phone: st.phone || "",
+        groupNumber: currentGrp,
       });
     } else {
       setEditingStudent(null);
@@ -82,9 +86,38 @@ export default function StudentManagementPage() {
         managementLevel: "Khối Bệnh viện",
         email: "",
         phone: "",
+        groupNumber: 1,
       });
     }
     setShowEditModal(true);
+  };
+
+  const handleQuickChangeGroup = async (st: any, newGroupNum: number) => {
+    setSwitchingGroupId(st.id);
+    try {
+      const res = await fetch("/api/admin/students/update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: st.id,
+          groupNumber: newGroupNum,
+        }),
+      });
+      if (res.ok) {
+        setStudents((prev) =>
+          prev.map((item) =>
+            item.id === st.id ? { ...item, groupNumber: newGroupNum } : item
+          )
+        );
+      } else {
+        const data = await res.json();
+        alert(data.error || "Lỗi khi chuyển nhóm");
+      }
+    } catch (e) {
+      alert("Lỗi kết nối máy chủ khi chuyển nhóm");
+    } finally {
+      setSwitchingGroupId(null);
+    }
   };
 
   const handleSaveStudent = async (e: React.FormEvent) => {
@@ -185,7 +218,7 @@ export default function StudentManagementPage() {
       filterLevel === "ALL" ||
       (filterLevel === "MISSING_EMAIL" ? !s.email || !s.email.trim() : s.managementLevel === filterLevel);
 
-    const grpNum = getStudentGroupNumber(s.studentCode);
+    const grpNum = getStudentGroupNumber(s.studentCode, s.groupNumber);
     const matchGroup = filterGroup === "ALL" || grpNum === filterGroup;
 
     return matchSearch && matchLevel && matchGroup;
@@ -309,6 +342,9 @@ export default function StudentManagementPage() {
           </button>
           {GOAL_CASCADE_GROUPS.map((grpLabel, idx) => {
             const gNum = idx + 1;
+            const liveCount = students.filter(
+              (s) => getStudentGroupNumber(s.studentCode, s.groupNumber) === gNum
+            ).length;
             return (
               <button
                 key={gNum}
@@ -319,7 +355,7 @@ export default function StudentManagementPage() {
                     : "bg-slate-950 text-slate-400 hover:text-white border border-slate-800"
                 }`}
               >
-                {grpLabel.split(":")[0]} ({grpLabel.match(/\((\d+) người\)/)?.[1] || ""})
+                {grpLabel.split(":")[0]} ({liveCount})
               </button>
             );
           })}
@@ -335,7 +371,7 @@ export default function StudentManagementPage() {
                 <th className="py-3.5 px-4 font-code">MÃ HV</th>
                 <th className="py-3.5 px-4">HỌ VÀ TÊN</th>
                 <th className="py-3.5 px-4">CHỨC DANH / KHOA PHÒNG</th>
-                <th className="py-3.5 px-4">NHÓM THỰC HÀNH & KHỐI</th>
+                <th className="py-3.5 px-4">CHUYỂN NHÓM THỰC HÀNH & KHỐI</th>
                 <th className="py-3.5 px-4">LIÊN HỆ (EMAIL/SĐT)</th>
                 <th className="py-3.5 px-4 text-right">THAO TÁC</th>
               </tr>
@@ -355,8 +391,7 @@ export default function StudentManagementPage() {
                 </tr>
               ) : (
                 filteredStudents.map((st) => {
-                  const grpNum = getStudentGroupNumber(st.studentCode);
-                  const grpName = getStudentGroupName(st.studentCode);
+                  const grpNum = getStudentGroupNumber(st.studentCode, st.groupNumber) || 1;
                   return (
                     <tr key={st.id} className="hover:bg-slate-800/50 transition-colors">
                       <td className="py-3.5 px-4 font-code font-bold text-emerald-400 text-sm whitespace-nowrap">
@@ -369,15 +404,24 @@ export default function StudentManagementPage() {
                         <div className="text-slate-200 font-medium">{st.title || "--"}</div>
                         <div className="text-slate-400 text-[11px]">{st.department || "--"}</div>
                       </td>
-                      <td className="py-3.5 px-4 space-y-1">
+                      <td className="py-3.5 px-4 space-y-1.5">
                         <div>
-                          {grpNum ? (
-                            <span className="inline-block bg-blue-950/80 text-blue-300 border border-blue-800/80 px-2 py-0.5 rounded font-bold text-[10px]">
-                              {grpName.replace(/\s*\(\d+ người\)/, "")}
-                            </span>
-                          ) : (
-                            <span className="text-slate-500 text-[10px]">Chưa phân nhóm</span>
-                          )}
+                          <select
+                            value={grpNum}
+                            disabled={switchingGroupId === st.id}
+                            onChange={(e) => handleQuickChangeGroup(st, Number(e.target.value))}
+                            title="Chọn nhóm để chuyển nhóm ngay lập tức"
+                            className="bg-blue-950/90 hover:bg-blue-900 text-blue-200 border border-blue-700/80 px-2.5 py-1 rounded-md font-bold text-[11px] cursor-pointer focus:outline-none focus:border-emerald-400 transition-colors"
+                          >
+                            {GOAL_CASCADE_GROUPS.map((gName, idx) => {
+                              const gNumber = idx + 1;
+                              return (
+                                <option key={gNumber} value={gNumber} className="bg-slate-900 text-white">
+                                  🔄 {gName.replace(/\s*\(\d+ người\)/, "")}
+                                </option>
+                              );
+                            })}
+                          </select>
                         </div>
                         <div>
                           <span className="bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-semibold text-[10px]">
@@ -484,16 +528,20 @@ export default function StudentManagementPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold uppercase text-slate-300 mb-1">
-                    CHỨC DANH
+                  <label className="block font-bold uppercase text-blue-300 mb-1">
+                    NHÓM THỰC HÀNH (CHUYỂN NHÓM)
                   </label>
-                  <input
-                    type="text"
-                    value={editForm.title}
-                    onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
-                    placeholder="VD: Trưởng phòng, Tổ trưởng QLCL..."
-                    className="w-full bg-slate-950 border border-slate-700 text-white p-2.5 rounded-lg focus:border-emerald-500 focus:outline-none"
-                  />
+                  <select
+                    value={editForm.groupNumber}
+                    onChange={(e) => setEditForm({ ...editForm, groupNumber: Number(e.target.value) })}
+                    className="w-full bg-slate-950 border border-blue-700 text-white p-2.5 rounded-lg focus:border-emerald-500 focus:outline-none font-bold"
+                  >
+                    {GOAL_CASCADE_GROUPS.map((gName, idx) => (
+                      <option key={idx + 1} value={idx + 1}>
+                        {gName.replace(/\s*\(\d+ người\)/, "")}
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 <div>
                   <label className="block font-bold uppercase text-slate-300 mb-1">
@@ -511,17 +559,31 @@ export default function StudentManagementPage() {
                 </div>
               </div>
 
-              <div>
-                <label className="block font-bold uppercase text-slate-300 mb-1">
-                  KHOA / PHÒNG / BỘ PHẬN
-                </label>
-                <input
-                  type="text"
-                  value={editForm.department}
-                  onChange={(e) => setEditForm({ ...editForm, department: e.target.value })}
-                  placeholder="VD: Khoa Xét nghiệm, Phòng KHTH - QLCL..."
-                  className="w-full bg-slate-950 border border-slate-700 text-white p-2.5 rounded-lg focus:border-emerald-500 focus:outline-none"
-                />
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-bold uppercase text-slate-300 mb-1">
+                    CHỨC DANH
+                  </label>
+                  <input
+                    type="text"
+                    value={editForm.title}
+                    onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                    placeholder="VD: Trưởng phòng, Tổ trưởng QLCL..."
+                    className="w-full bg-slate-950 border border-slate-700 text-white p-2.5 rounded-lg focus:border-emerald-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold uppercase text-slate-300 mb-1">
+                    KHOA / PHÒNG / BỘ PHẬN
+                  </label>
+                  <input
+                    type="text"
+                    value={editForm.department}
+                    onChange={(e) => setEditForm({ ...editForm, department: e.target.value })}
+                    placeholder="VD: Khoa Xét nghiệm, Phòng KHTH - QLCL..."
+                    className="w-full bg-slate-950 border border-slate-700 text-white p-2.5 rounded-lg focus:border-emerald-500 focus:outline-none"
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
