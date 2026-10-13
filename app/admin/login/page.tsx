@@ -6,8 +6,8 @@ import Link from "next/link";
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("admin@buddy.edu.vn");
-  const [password, setPassword] = useState("BuddyAdmin@2026");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -86,6 +86,7 @@ export default function AdminLoginPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Nhập email quản trị..."
                   required
                   className="w-full text-xs font-code bg-slate-950 border border-slate-700 focus:border-blue-500 text-white p-3 rounded-lg"
                 />
@@ -99,6 +100,7 @@ export default function AdminLoginPage() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Nhập mật khẩu..."
                   required
                   className="w-full text-xs font-code bg-slate-950 border border-slate-700 focus:border-blue-500 text-white p-3 rounded-lg"
                 />
@@ -112,10 +114,6 @@ export default function AdminLoginPage() {
                 {loading ? "ĐANG XÁC THỰC..." : "ĐĂNG NHẬP VÀO HỆ THỐNG"}
               </button>
           </form>
-
-          <div className="pt-4 border-t border-slate-800 text-center text-[11px] text-slate-500">
-            Tài khoản mẫu: <span className="font-code text-slate-300">admin@buddy.edu.vn</span> | Pass: <span className="font-code text-slate-300">BuddyAdmin@2026</span>
-          </div>
         </div>
       </main>
 
