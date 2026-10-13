@@ -252,6 +252,17 @@ export default function HomeworkPlanWorkspacePage() {
   const [allGroupPlans, setAllGroupPlans] = useState<any[]>([]);
   const isTimeOver = activeTimer <= 0;
 
+  // Student Identity State
+  const [currentStudent, setCurrentStudent] = useState<{
+    studentCode: string;
+    fullName: string;
+    department?: string;
+    title?: string;
+  } | null>(null);
+  const [quickInputCode, setQuickInputCode] = useState<string>("");
+  const [isIdentifying, setIsIdentifying] = useState<boolean>(false);
+  const [identityError, setIdentityError] = useState<string>("");
+
   // Form State
   const [plan, setPlan] = useState<GoalPlan>({
     department: SAMPLE_DEPARTMENTS[0].name,
@@ -454,24 +465,45 @@ export default function HomeworkPlanWorkspacePage() {
     return null;
   };
 
-  // Mã học viên và thông tin cá nhân đăng nhập ở Cổng học viên
+  // Hàm tra cứu và thiết lập danh tính học viên
+  const applyStudentIdentity = async (rawCode: string) => {
+    let cleanCode = rawCode.trim().toUpperCase();
+    if (!cleanCode) return;
+    if (!cleanCode.startsWith("HV") && /^\d+$/.test(cleanCode)) {
+      cleanCode = `HV${cleanCode.padStart(2, "0")}`;
+    }
+
+    setIsIdentifying(true);
+    setIdentityError("");
+    try {
+      const res = await fetch(`/api/student/me?code=${encodeURIComponent(cleanCode)}`);
+      const data = await res.json();
+      if (res.ok && data.student) {
+        setCurrentStudent(data.student);
+        localStorage.setItem("buddy_student_code", data.student.studentCode);
+        setPlan((prev) => ({
+          ...prev,
+          studentCode: data.student.studentCode,
+          managerName: data.student.fullName || prev.managerName,
+          department: data.student.department || prev.department,
+        }));
+        setQuickInputCode("");
+      } else {
+        setIdentityError(data.error || "Không tìm thấy học viên với mã này.");
+      }
+    } catch (e) {
+      setIdentityError("Không thể kết nối đến máy chủ.");
+    } finally {
+      setIsIdentifying(false);
+    }
+  };
+
+  // Mã học viên và thông tin cá nhân đăng nhập ở Cổng học viên / Check-in
   useEffect(() => {
     const searchCode = new URLSearchParams(window.location.search).get("code");
     const saved = searchCode || localStorage.getItem("buddy_student_code") || "";
     if (saved) {
-      setPlan((prev) => ({ ...prev, studentCode: saved }));
-      fetch(`/api/student/me?code=${encodeURIComponent(saved)}`)
-        .then((r) => r.json())
-        .then((d) => {
-          if (d.student) {
-            setPlan((prev) => ({
-              ...prev,
-              managerName: d.student.fullName || prev.managerName,
-              department: d.student.department || prev.department,
-            }));
-          }
-        })
-        .catch(() => {});
+      applyStudentIdentity(saved);
     }
   }, []);
 
@@ -630,6 +662,76 @@ export default function HomeworkPlanWorkspacePage() {
                 : "NỘP BÀI TẬP VỀ NHÀ →"}
             </button>
           </div>
+        </div>
+      </div>
+
+      {/* Smart Identity Bar */}
+      <div className="bg-white border-b border-slate-200 shadow-sm py-2 px-4 sm:px-6">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+          {currentStudent ? (
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-50 text-blue-900 font-semibold border border-blue-200">
+                <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+                👤 Người làm bài: <strong className="text-blue-950 font-bold">{currentStudent.fullName}</strong>
+                <span className="text-blue-700">({currentStudent.studentCode})</span>
+              </span>
+              {currentStudent.department && (
+                <span className="text-slate-600 font-medium hidden md:inline">• {currentStudent.department}</span>
+              )}
+              {currentStudent.title && (
+                <span className="text-slate-500 hidden lg:inline">• {currentStudent.title}</span>
+              )}
+              <button
+                type="button"
+                onClick={() => {
+                  setCurrentStudent(null);
+                  localStorage.removeItem("buddy_student_code");
+                  setPlan((prev) => ({ ...prev, studentCode: "", managerName: "" }));
+                }}
+                className="text-slate-400 hover:text-rose-600 underline text-[11px] ml-1"
+                title="Đổi sang mã học viên khác"
+              >
+                (Đổi mã)
+              </button>
+            </div>
+          ) : (
+            <div className="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 bg-amber-50 border border-amber-200 rounded-lg p-2.5 text-amber-900">
+              <div className="flex items-center gap-2">
+                <span className="text-base">⚠️</span>
+                <span>
+                  <strong>Bạn đang vào thiết bị mới.</strong> Nhập Mã học viên (VD: <span className="font-mono font-bold text-amber-950">HV01</span> hoặc <span className="font-mono font-bold text-amber-950">01</span>) để lưu BTVN vào đúng hồ sơ của bạn:
+                </span>
+              </div>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (quickInputCode.trim()) applyStudentIdentity(quickInputCode);
+                }}
+                className="flex items-center gap-1.5 w-full sm:w-auto"
+              >
+                <input
+                  type="text"
+                  placeholder="Mã HV (VD: 01 hoặc HV01)"
+                  value={quickInputCode}
+                  onChange={(e) => setQuickInputCode(e.target.value)}
+                  className="px-2.5 py-1 text-xs border border-amber-300 rounded focus:ring-2 focus:ring-teal-500 bg-white font-mono uppercase text-slate-800 w-36"
+                />
+                <button
+                  type="submit"
+                  disabled={isIdentifying || !quickInputCode.trim()}
+                  className="px-3 py-1 bg-teal-700 hover:bg-teal-800 text-white font-semibold rounded text-xs transition disabled:opacity-50 whitespace-nowrap shadow-sm"
+                >
+                  {isIdentifying ? "Đang tìm..." : "Xác nhận"}
+                </button>
+              </form>
+            </div>
+          )}
+
+          {identityError && (
+            <div className="text-rose-600 font-medium text-[11px] bg-rose-50 px-2 py-0.5 rounded border border-rose-200">
+              {identityError}
+            </div>
+          )}
         </div>
       </div>
 

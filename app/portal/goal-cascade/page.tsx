@@ -252,6 +252,18 @@ export default function GoalCascadeWorkspacePage() {
   const [allGroupPlans, setAllGroupPlans] = useState<any[]>([]);
   const isTimeOver = activeTimer <= 0;
 
+  // Student Identity State
+  const [currentStudent, setCurrentStudent] = useState<{
+    studentCode: string;
+    fullName: string;
+    department?: string;
+    title?: string;
+    groupNumber?: number;
+  } | null>(null);
+  const [quickInputCode, setQuickInputCode] = useState<string>("");
+  const [isIdentifying, setIsIdentifying] = useState<boolean>(false);
+  const [identityError, setIdentityError] = useState<string>("");
+
   // Form State
   const [plan, setPlan] = useState<GoalPlan>({
     department: SAMPLE_DEPARTMENTS[0].name,
@@ -454,26 +466,49 @@ export default function GoalCascadeWorkspacePage() {
     return null;
   };
 
-  // Mã học viên đăng nhập ở Cổng học viên & tự động chọn đúng nhóm của học viên (bao gồm nhóm vừa đổi trên DB)
-  useEffect(() => {
-    const saved = localStorage.getItem("buddy_student_code") || "";
-    setPlan((prev) => ({ ...prev, studentCode: saved }));
-    if (saved) {
-      const grpNum = getStudentGroupNumber(saved);
-      if (grpNum && grpNum >= 1 && grpNum <= 8) {
-        setSelectedDeptIndex(grpNum - 1);
+  // Hàm tra cứu và thiết lập danh tính học viên
+  const applyStudentIdentity = async (rawCode: string) => {
+    let cleanCode = rawCode.trim().toUpperCase();
+    if (!cleanCode) return;
+    if (!cleanCode.startsWith("HV") && /^\d+$/.test(cleanCode)) {
+      cleanCode = `HV${cleanCode.padStart(2, "0")}`;
+    }
+
+    setIsIdentifying(true);
+    setIdentityError("");
+    try {
+      const res = await fetch(`/api/student/me?code=${encodeURIComponent(cleanCode)}`);
+      const data = await res.json();
+      if (res.ok && data.student) {
+        setCurrentStudent(data.student);
+        localStorage.setItem("buddy_student_code", data.student.studentCode);
+        setPlan((prev) => ({
+          ...prev,
+          studentCode: data.student.studentCode,
+          managerName: data.student.fullName || prev.managerName,
+        }));
+        // Tự động chuyển về nhóm học viên được phân công
+        const dbGrp = getStudentGroupNumber(data.student.studentCode, data.student.groupNumber);
+        if (dbGrp && dbGrp >= 1 && dbGrp <= 8) {
+          setSelectedDeptIndex(dbGrp - 1);
+        }
+        setQuickInputCode("");
+      } else {
+        setIdentityError(data.error || "Không tìm thấy học viên với mã này.");
       }
-      fetch(`/api/student/me?code=${encodeURIComponent(saved)}`)
-        .then((r) => r.json())
-        .then((d) => {
-          if (d.student) {
-            const dbGrp = getStudentGroupNumber(d.student.studentCode, d.student.groupNumber);
-            if (dbGrp && dbGrp >= 1 && dbGrp <= 8) {
-              setSelectedDeptIndex(dbGrp - 1);
-            }
-          }
-        })
-        .catch(() => {});
+    } catch (e) {
+      setIdentityError("Không thể kết nối đến máy chủ.");
+    } finally {
+      setIsIdentifying(false);
+    }
+  };
+
+  // Mã học viên đăng nhập ở Cổng học viên / Check-in & tự động chọn đúng nhóm của học viên
+  useEffect(() => {
+    const urlCode = new URLSearchParams(window.location.search).get("code");
+    const saved = urlCode || localStorage.getItem("buddy_student_code") || "";
+    if (saved) {
+      applyStudentIdentity(saved);
     }
   }, []);
 
@@ -661,6 +696,79 @@ export default function GoalCascadeWorkspacePage() {
                 : "Nộp bài thực hành"}
             </button>
           </div>
+        </div>
+      </div>
+
+      {/* Smart Identity Bar */}
+      <div className="bg-white border-b border-slate-200 shadow-sm py-2 px-4 sm:px-6">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+          {currentStudent ? (
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 font-semibold border border-emerald-200">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                👤 Đại diện nhóm: <strong className="text-emerald-950 font-bold">{currentStudent.fullName}</strong>
+                <span className="text-emerald-700">({currentStudent.studentCode})</span>
+              </span>
+              {currentStudent.department && (
+                <span className="text-slate-500 hidden md:inline">• {currentStudent.department}</span>
+              )}
+              {currentStudent.title && (
+                <span className="text-slate-500 hidden lg:inline">• {currentStudent.title}</span>
+              )}
+              <span className="text-teal-700 font-medium bg-teal-50 px-2 py-0.5 rounded border border-teal-100">
+                Nhóm bàn: {getStudentGroupNumber(currentStudent.studentCode, currentStudent.groupNumber) ? `Nhóm ${getStudentGroupNumber(currentStudent.studentCode, currentStudent.groupNumber)}` : "Chưa chia"}
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  setCurrentStudent(null);
+                  localStorage.removeItem("buddy_student_code");
+                  setPlan((prev) => ({ ...prev, studentCode: "" }));
+                }}
+                className="text-slate-400 hover:text-rose-600 underline text-[11px] ml-1"
+                title="Đổi sang mã học viên khác"
+              >
+                (Đổi mã)
+              </button>
+            </div>
+          ) : (
+            <div className="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 bg-amber-50 border border-amber-200 rounded-lg p-2.5 text-amber-900">
+              <div className="flex items-center gap-2">
+                <span className="text-base">⚠️</span>
+                <span>
+                  <strong>Bạn đang vào thiết bị mới.</strong> Nhập Mã học viên (VD: <span className="font-mono font-bold text-amber-950">HV01</span> hoặc <span className="font-mono font-bold text-amber-950">01</span>) để hệ thống tự nhận diện nhóm và tên người nộp:
+                </span>
+              </div>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (quickInputCode.trim()) applyStudentIdentity(quickInputCode);
+                }}
+                className="flex items-center gap-1.5 w-full sm:w-auto"
+              >
+                <input
+                  type="text"
+                  placeholder="Mã HV (VD: 01 hoặc HV01)"
+                  value={quickInputCode}
+                  onChange={(e) => setQuickInputCode(e.target.value)}
+                  className="px-2.5 py-1 text-xs border border-amber-300 rounded focus:ring-2 focus:ring-teal-500 bg-white font-mono uppercase text-slate-800 w-36"
+                />
+                <button
+                  type="submit"
+                  disabled={isIdentifying || !quickInputCode.trim()}
+                  className="px-3 py-1 bg-teal-700 hover:bg-teal-800 text-white font-semibold rounded text-xs transition disabled:opacity-50 whitespace-nowrap shadow-sm"
+                >
+                  {isIdentifying ? "Đang tìm..." : "Xác nhận"}
+                </button>
+              </form>
+            </div>
+          )}
+
+          {identityError && (
+            <div className="text-rose-600 font-medium text-[11px] bg-rose-50 px-2 py-0.5 rounded border border-rose-200">
+              {identityError}
+            </div>
+          )}
         </div>
       </div>
 
