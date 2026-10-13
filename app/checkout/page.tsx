@@ -22,6 +22,22 @@ function CheckOutForm() {
     }
   }, []);
 
+  const [redirectCountdown, setRedirectCountdown] = useState<number | null>(null);
+
+  const SURVEY_URL = "https://forms.gle/1KBNat2mq5hLybGZ6";
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (redirectCountdown !== null && redirectCountdown > 0) {
+      timer = setTimeout(() => {
+        setRedirectCountdown((prev) => (prev !== null ? prev - 1 : null));
+      }, 1000);
+    } else if (redirectCountdown === 0) {
+      window.location.href = SURVEY_URL;
+    }
+    return () => clearTimeout(timer);
+  }, [redirectCountdown]);
+
   const handleCheckOut = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!studentCode.trim()) {
@@ -48,6 +64,8 @@ function CheckOutForm() {
       } else {
         setResult(data);
         localStorage.setItem("buddy_student_code", data.student.studentCode);
+        // Tự động đếm ngược 4 giây chuyển sang Google Form khảo sát
+        setRedirectCountdown(4);
       }
     } catch (err) {
       setError("Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại kết nối mạng.");
@@ -62,13 +80,13 @@ function CheckOutForm() {
         <div className="bg-slate-800/80 border border-slate-700 p-6 sm:p-8 rounded-xl shadow-2xl">
           <div className="text-center mb-6">
             <span className="inline-block text-[11px] font-bold uppercase tracking-widest bg-amber-950/80 text-amber-400 border border-amber-800 px-3 py-1 rounded-full mb-3 whitespace-nowrap">
-              CỔNG CHECK-OUT CUỐI GIỜ
+              CỔNG CHECK-OUT & ĐÁNH GIÁ CUỐI GIỜ
             </span>
             <h2 className="text-2xl font-bold tracking-tight text-white">
-              CHECK-OUT KẾT THÚC BUỔI
+              CHECK-OUT BUỔI HỌC
             </h2>
             <p className="text-xs text-slate-400 mt-2">
-              Xác nhận giờ ra để ghi nhận tổng thời gian tham gia khóa học
+              Xác nhận giờ ra & tự động mở Biểu mẫu khảo sát đánh giá Buổi 1
             </p>
           </div>
 
@@ -111,9 +129,9 @@ function CheckOutForm() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-amber-600 hover:bg-amber-500 disabled:bg-slate-700 text-white font-bold text-sm uppercase tracking-wider py-4 px-6 rounded-lg whitespace-nowrap transition-colors shadow-lg"
+              className="w-full bg-amber-500 hover:bg-amber-400 disabled:bg-slate-700 text-slate-950 font-extrabold text-sm uppercase tracking-wider py-4 px-6 rounded-lg whitespace-nowrap transition-colors shadow-lg"
             >
-              {loading ? "ĐANG XÁC NHẬN..." : "XÁC NHẬN CHECK-OUT"}
+              {loading ? "ĐANG XÁC NHẬN..." : "✓ CHECK-OUT & ĐIỀN KHẢO SÁT"}
             </button>
           </form>
         </div>
@@ -132,6 +150,33 @@ function CheckOutForm() {
             <p className="text-xs font-semibold text-slate-300 mt-1">
               {result.student.title || "Học viên"} • {result.student.department || "BV Phương Đông"}
             </p>
+          </div>
+
+          {/* Survey Google Form Box */}
+          <div className="bg-gradient-to-r from-amber-950 via-slate-900 to-emerald-950 border-2 border-amber-400 p-5 rounded-xl space-y-3 shadow-xl">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] bg-amber-400 text-slate-950 font-black px-2.5 py-0.5 rounded uppercase font-mono">
+                PHIẾU KHẢO SÁT BUỔI 1
+              </span>
+              {redirectCountdown !== null && (
+                <span className="text-xs font-bold text-amber-300 animate-pulse">
+                  Tự động mở sau {redirectCountdown}s...
+                </span>
+              )}
+            </div>
+            <h4 className="text-sm font-bold text-white">
+              Đánh Giá Sau Buổi 1: Khóa Đào Tạo Nâng Cao Năng Lực Quản Lý
+            </h4>
+            <p className="text-xs text-slate-300 leading-relaxed">
+              Ý kiến của bạn là cơ sở quan trọng để Ban tổ chức nâng cao chất lượng các buổi đào tạo tiếp theo.
+            </p>
+
+            <a
+              href={SURVEY_URL}
+              className="block w-full text-center bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider py-3.5 px-4 rounded-lg shadow-md transition font-mono"
+            >
+              📋 MỞ BIỂU MẪU KHẢO SÁT NGAY →
+            </a>
           </div>
 
           <div className="bg-slate-900/90 border border-slate-700 rounded-xl p-4 space-y-2 text-xs">

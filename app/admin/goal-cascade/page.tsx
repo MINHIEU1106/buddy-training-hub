@@ -464,10 +464,30 @@ export default function AdminGoalCascadePage() {
             <span className="text-[10px] font-bold bg-[#00685E] text-white px-2 py-0.5 rounded font-mono uppercase">
               Chi tiết bài thực hành
             </span>
-            <h3 className="text-base font-bold text-slate-900 mt-1">{GOAL_CASCADE_GROUPS[selectedGroup]}</h3>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mt-1">
+              <h3 className="text-base font-bold text-slate-900">{GOAL_CASCADE_GROUPS[selectedGroup]}</h3>
+              <div className="flex items-center gap-1.5">
+                <Link
+                  href={`/portal/goal-cascade?code=${active?.submittedByCode || ""}`}
+                  target="_blank"
+                  className="text-[11px] font-bold px-2.5 py-1 rounded bg-teal-50 text-teal-800 border border-teal-200 hover:bg-teal-100 transition inline-flex items-center gap-1"
+                  title="Mở Sơ đồ Gantt tiến độ 12 tháng của nhóm này"
+                >
+                  📊 Sơ đồ Gantt ↗
+                </Link>
+                <Link
+                  href={`/portal/goal-cascade?code=${active?.submittedByCode || ""}`}
+                  target="_blank"
+                  className="text-[11px] font-bold px-2.5 py-1 rounded bg-blue-50 text-blue-800 border border-blue-200 hover:bg-blue-100 transition inline-flex items-center gap-1"
+                  title="Mở Bảng theo dõi chỉ tiêu KPIs & Tiến độ"
+                >
+                  📈 Bảng chỉ tiêu ↗
+                </Link>
+              </div>
+            </div>
             {active && (
-              <p className="text-xs text-slate-500">
-                Người nộp: {active.submittedByName} ({active.submittedByCode}) · Trạng thái: <strong className="text-emerald-700">Đã nộp bài</strong>
+              <p className="text-xs text-slate-500 mt-1">
+                Người nộp: <strong>{active.submittedByName}</strong> ({active.submittedByCode}) · Trạng thái: <strong className="text-emerald-700">Đã nộp bài</strong>
               </p>
             )}
           </div>
