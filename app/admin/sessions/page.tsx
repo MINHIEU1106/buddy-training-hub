@@ -2,12 +2,43 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import QRCode from "qrcode";
 import { formatDateVN } from "@/lib/date";
 
 export default function AdminSessionsPage() {
   const [sessions, setSessions] = useState<any[]>([]);
   const [course, setCourse] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // QR Popup state for Assignments
+  const [qrPopup, setQrPopup] = useState<{
+    title: string;
+    type: string;
+    url: string;
+    dataUrl: string;
+  } | null>(null);
+
+  const openAssignmentQr = async (assign: any) => {
+    const isInSession = assign.type === "IN_SESSION";
+    const targetUrl = isInSession
+      ? "https://buddytrain.netlify.app/portal/goal-cascade"
+      : "https://buddytrain.netlify.app/portal/homework-plan";
+    try {
+      const dataUrl = await QRCode.toDataURL(targetUrl, {
+        width: 520,
+        margin: 2,
+        color: { dark: "#003D37", light: "#FFFFFF" },
+      });
+      setQrPopup({
+        title: assign.title,
+        type: assign.type,
+        url: targetUrl,
+        dataUrl,
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   // Edit Session Modal state
   const [editingSession, setEditingSession] = useState<any | null>(null);
@@ -399,6 +430,12 @@ export default function AdminSessionsPage() {
                             </div>
 
                             <div className="flex items-center gap-2 self-end sm:self-center flex-wrap">
+                              <button
+                                onClick={() => openAssignmentQr(assign)}
+                                className="text-xs font-bold text-slate-950 bg-amber-400 hover:bg-amber-300 border border-amber-500 px-3 py-1.5 rounded whitespace-nowrap transition-colors shadow"
+                              >
+                                📱 HIỆN MÃ QR
+                              </button>
                               {isInSession && (
                                 <Link
                                   href="/admin/goal-cascade"
@@ -451,6 +488,62 @@ export default function AdminSessionsPage() {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* MODAL QR CODE BÀI TẬP THỰC HÀNH / BTVN */}
+      {qrPopup && (
+        <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <div className="bg-white border-2 border-[#00685E] p-6 sm:p-8 rounded-2xl max-w-lg w-full text-center space-y-4 shadow-2xl relative">
+            <button
+              onClick={() => setQrPopup(null)}
+              className="absolute top-4 right-4 text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg"
+            >
+              ✕ Đóng
+            </button>
+
+            <div>
+              <span className="text-[11px] font-bold uppercase tracking-widest text-[#00685E] bg-teal-50 border border-teal-200 px-3 py-1 rounded-full">
+                {qrPopup.type === "IN_SESSION" ? "MÃ QR THỰC HÀNH TRÊN LỚP (8 NHÓM)" : "MÃ QR BÀI TẬP VỀ NHÀ"}
+              </span>
+              <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 mt-2">
+                {qrPopup.title}
+              </h3>
+            </div>
+
+            <div className="flex justify-center">
+              <div className="bg-white p-4 rounded-2xl border-4 border-[#00685E] shadow-xl inline-block">
+                <img
+                  src={qrPopup.dataUrl}
+                  alt="QR Code Bài Tập"
+                  className="w-72 h-72 sm:w-80 sm:h-80 object-contain mx-auto"
+                />
+              </div>
+            </div>
+
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-1">
+              <div className="text-[11px] uppercase font-bold text-slate-400">Đường dẫn truy cập trực tiếp:</div>
+              <div className="font-code font-bold text-sm text-[#00685E] select-all">
+                {qrPopup.url}
+              </div>
+            </div>
+
+            <div className="flex justify-center gap-3 pt-1">
+              <a
+                href={qrPopup.dataUrl}
+                download={qrPopup.type === "IN_SESSION" ? "QR_Thuc_Hanh_Tren_Lop.png" : "QR_BTVN_Ke_Hoach_Ca_Nhan.png"}
+                className="text-xs font-bold uppercase bg-[#00685E] hover:bg-teal-800 text-white px-4 py-2.5 rounded-lg shadow transition"
+              >
+                ⬇ Tải ảnh QR (.PNG)
+              </a>
+              <button
+                onClick={() => setQrPopup(null)}
+                className="text-xs font-bold uppercase bg-slate-200 hover:bg-slate-300 text-slate-800 px-4 py-2.5 rounded-lg transition"
+              >
+                Đóng
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

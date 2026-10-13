@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import QRCode from "qrcode";
 import { GOAL_CASCADE_GROUPS } from "@/lib/goal-cascade-groups";
 
 interface SubmittedPlan {
@@ -30,6 +31,26 @@ export default function AdminGoalCascadePage() {
   const [plans, setPlans] = useState<SubmittedPlan[]>([]);
   const [commentDraft, setCommentDraft] = useState<string>("");
   const [savingComment, setSavingComment] = useState<boolean>(false);
+
+  // QR Modal state
+  const [showQrModal, setShowQrModal] = useState<boolean>(false);
+  const [qrMode, setQrMode] = useState<"IN_CLASS" | "HOMEWORK">("IN_CLASS");
+  const [qrDataUrl, setQrDataUrl] = useState<string>("");
+
+  const practiceUrl =
+    qrMode === "IN_CLASS"
+      ? "https://buddytrain.netlify.app/portal/goal-cascade"
+      : "https://buddytrain.netlify.app/portal/homework-plan";
+
+  useEffect(() => {
+    QRCode.toDataURL(practiceUrl, {
+      width: 520,
+      margin: 2,
+      color: { dark: "#003D37", light: "#FFFFFF" },
+    })
+      .then((url) => setQrDataUrl(url))
+      .catch(() => {});
+  }, [practiceUrl]);
 
   const loadPlans = () =>
     fetch("/api/goal-cascade")
@@ -86,7 +107,16 @@ export default function AdminGoalCascadePage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <button
+            onClick={() => {
+              setQrMode("IN_CLASS");
+              setShowQrModal(true);
+            }}
+            className="text-xs font-bold bg-amber-400 hover:bg-amber-300 text-slate-950 border border-amber-500 px-4 py-2 rounded shadow transition flex items-center gap-1.5 font-mono"
+          >
+            📱 HIỆN MÃ QR BÀI TẬP THỰC HÀNH
+          </button>
           <Link
             href="/portal/goal-cascade"
             target="_blank"
@@ -149,17 +179,122 @@ export default function AdminGoalCascadePage() {
             <span className="text-[10px] font-bold uppercase bg-amber-400 text-slate-900 px-2 py-0.5 rounded font-mono">
               Chế độ Hội trường
             </span>
-            <h3 className="text-xs font-bold mt-1.5">Chiếu Cây Phân Rã & So Sánh 8 Nhóm</h3>
+            <h3 className="text-xs font-bold mt-1.5">Chiếu QR Thực Hành & So Sánh 8 Nhóm</h3>
           </div>
-          <Link
-            href="/portal/goal-cascade"
-            target="_blank"
-            className="text-xs font-bold bg-white text-slate-950 px-3 py-1.5 rounded text-center hover:bg-slate-100 transition mt-2 font-mono"
-          >
-            Mở Chế Độ Toàn Màn Hình
-          </Link>
+          <div className="grid grid-cols-2 gap-2 mt-2">
+            <button
+              onClick={() => {
+                setQrMode("IN_CLASS");
+                setShowQrModal(true);
+              }}
+              className="text-xs font-bold bg-amber-400 hover:bg-amber-300 text-slate-950 px-2.5 py-1.5 rounded text-center transition font-mono"
+            >
+              📱 Chiếu QR Code
+            </button>
+            <Link
+              href="/portal/goal-cascade"
+              target="_blank"
+              className="text-xs font-bold bg-white text-slate-950 px-2.5 py-1.5 rounded text-center hover:bg-slate-100 transition font-mono"
+            >
+              Mở Toàn Màn Hình
+            </Link>
+          </div>
         </div>
       </div>
+
+      {/* Fullscreen Projection QR Modal */}
+      {showQrModal && (
+        <div className="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <div className="bg-white border-2 border-[#00685E] rounded-2xl max-w-xl w-full p-6 sm:p-8 shadow-2xl text-center space-y-5 relative">
+            <button
+              onClick={() => setShowQrModal(false)}
+              className="absolute top-4 right-4 text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg"
+            >
+              ✕ Đóng
+            </button>
+
+            <div className="flex justify-center gap-2">
+              <button
+                onClick={() => setQrMode("IN_CLASS")}
+                className={`text-xs font-bold uppercase px-3.5 py-1.5 rounded-lg border transition ${
+                  qrMode === "IN_CLASS"
+                    ? "bg-[#00685E] text-white border-[#00685E]"
+                    : "bg-slate-100 text-slate-600 border-slate-300"
+                }`}
+              >
+                1. QR Thực hành tại lớp (8 Nhóm)
+              </button>
+              <button
+                onClick={() => setQrMode("HOMEWORK")}
+                className={`text-xs font-bold uppercase px-3.5 py-1.5 rounded-lg border transition ${
+                  qrMode === "HOMEWORK"
+                    ? "bg-blue-700 text-white border-blue-700"
+                    : "bg-slate-100 text-slate-600 border-slate-300"
+                }`}
+              >
+                2. QR Bài tập về nhà cá nhân
+              </button>
+            </div>
+
+            <div>
+              <span className="text-[11px] font-bold uppercase tracking-widest text-[#00685E] bg-teal-50 border border-teal-200 px-3 py-1 rounded-full">
+                {qrMode === "IN_CLASS" ? "BUỔI 1 • THỰC HÀNH TRÊN LỚP (8 NHÓM)" : "BUỔI 1 • BÀI TẬP VỀ NHÀ CÁ NHÂN"}
+              </span>
+              <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 mt-2">
+                {qrMode === "IN_CLASS"
+                  ? "QUÉT MÃ QR ĐỂ VÀO BÀN THỰC HÀNH NHÓM"
+                  : "QUÉT MÃ QR ĐỂ LÀM BTVN LẬP KẾ HOẠCH CÁ NHÂN"}
+              </h2>
+              <p className="text-xs text-slate-500 mt-1">
+                {qrMode === "IN_CLASS"
+                  ? "Phân rã mục tiêu BV 'Người bệnh hài lòng ≥ 90%' & Lập kế hoạch hành động 5W1H"
+                  : "Biểu mẫu lập kế hoạch công việc cá nhân / khoa phòng 3 bước online"}
+              </p>
+            </div>
+
+            <div className="flex justify-center">
+              <div className="bg-white p-4 rounded-2xl border-4 border-[#00685E] shadow-xl inline-block">
+                {qrDataUrl ? (
+                  <img
+                    src={qrDataUrl}
+                    alt="QR Code Bài Tập Thực Hành"
+                    className="w-72 h-72 sm:w-80 sm:h-80 object-contain mx-auto"
+                  />
+                ) : (
+                  <div className="w-72 h-72 flex items-center justify-center text-xs text-slate-400">
+                    Đang tạo mã QR...
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-1">
+              <div className="text-[11px] uppercase font-bold text-slate-400">Hoặc truy cập trực tiếp bằng trình duyệt:</div>
+              <div className="font-mono font-bold text-sm sm:text-base text-[#00685E] select-all">
+                {practiceUrl}
+              </div>
+            </div>
+
+            <div className="flex justify-center gap-3 pt-1">
+              {qrDataUrl && (
+                <a
+                  href={qrDataUrl}
+                  download={qrMode === "IN_CLASS" ? "QR_Thuc_Hanh_Buoi_1_Goal_Cascade.png" : "QR_BTVN_Buoi_1_Ke_Hoach_Ca_Nhan.png"}
+                  className="text-xs font-bold uppercase bg-[#00685E] hover:bg-teal-800 text-white px-4 py-2.5 rounded-lg shadow transition"
+                >
+                  ⬇ Tải ảnh QR (.PNG) chèn Slide
+                </a>
+              )}
+              <button
+                onClick={() => setShowQrModal(false)}
+                className="text-xs font-bold uppercase bg-slate-200 hover:bg-slate-300 text-slate-800 px-4 py-2.5 rounded-lg transition"
+              >
+                Đóng màn hình QR
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Bảng Tổng Hợp Mục Tiêu Phân Rã Toàn Viện (Cấp 2 - Khoa/Phòng) */}
       <div className="bg-white border border-slate-200 rounded-lg p-5 shadow-sm space-y-3">
