@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { formatTimeVN, formatDateVN } from "@/lib/date";
+import { getStudentGroupName } from "@/lib/goal-cascade-groups";
 
 export default function StudentPortalPage() {
   const [studentCode, setStudentCode] = useState("");
@@ -10,6 +11,18 @@ export default function StudentPortalPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [studentData, setStudentData] = useState<any | null>(null);
+
+  // Edit profile modal state
+  const [showEditProfile, setShowEditProfile] = useState(false);
+  const [profileForm, setProfileForm] = useState({
+    fullName: "",
+    title: "",
+    department: "",
+    email: "",
+    phone: "",
+  });
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [profileMsg, setProfileMsg] = useState<string | null>(null);
 
   useEffect(() => {
     const savedCode = localStorage.getItem("buddy_student_code");
@@ -36,6 +49,48 @@ export default function StudentPortalPage() {
       setError("Không thể kết nối máy chủ");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleOpenEditProfile = () => {
+    if (!studentData) return;
+    setProfileForm({
+      fullName: studentData.fullName || "",
+      title: studentData.title || "",
+      department: studentData.department || "",
+      email: studentData.email || "",
+      phone: studentData.phone || "",
+    });
+    setProfileMsg(null);
+    setShowEditProfile(true);
+  };
+
+  const handleSaveProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!studentData) return;
+    setSavingProfile(true);
+    setProfileMsg(null);
+    try {
+      const res = await fetch("/api/admin/students/update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: studentData.id,
+          ...profileForm,
+          actorName: `Học viên ${studentData.studentCode}`,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        await fetchStudent(studentData.studentCode);
+        setShowEditProfile(false);
+      } else {
+        setProfileMsg(data.error || "Lỗi cập nhật thông tin");
+      }
+    } catch (err) {
+      setProfileMsg("Không thể kết nối máy chủ");
+    } finally {
+      setSavingProfile(false);
     }
   };
 
@@ -133,32 +188,50 @@ export default function StudentPortalPage() {
           <div className="space-y-8">
             {/* Student Header Card */}
             <div className="bg-slate-800 border border-slate-700 p-6 rounded-xl shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-              <div>
-                <div className="flex items-center gap-2 mb-1">
+              <div className="space-y-1.5">
+                <div className="flex flex-wrap items-center gap-2">
                   <span className="text-[11px] font-bold uppercase tracking-wider bg-slate-700 text-slate-200 px-2.5 py-0.5 rounded">
                     {studentData.managementLevel || "Cán bộ Quản lý"}
                   </span>
                   <span className="text-[11px] font-bold font-code bg-emerald-950 border border-emerald-800 text-emerald-400 px-2.5 py-0.5 rounded">
                     MÃ: {studentData.studentCode}
                   </span>
+                  <span className="text-[11px] font-bold bg-blue-950 border border-blue-800 text-blue-300 px-2.5 py-0.5 rounded">
+                    {getStudentGroupName(studentData.studentCode)}
+                  </span>
                 </div>
                 <h2 className="text-2xl font-extrabold text-white">
                   {studentData.fullName}
                 </h2>
-                <p className="text-sm text-slate-300 mt-0.5">
+                <p className="text-sm text-slate-300">
                   {studentData.title} • {studentData.department}
                 </p>
+                <div className="flex flex-wrap items-center gap-3 pt-1 text-xs">
+                  <span className="font-code text-slate-400">
+                    ✉️ Email: {studentData.email ? (
+                      <strong className="text-slate-200">{studentData.email}</strong>
+                    ) : (
+                      <span className="text-amber-400 font-sans">Chưa cập nhật email</span>
+                    )}
+                  </span>
+                  <button
+                    onClick={handleOpenEditProfile}
+                    className="text-[11px] font-bold text-emerald-400 hover:text-emerald-300 underline"
+                  >
+                    ✏️ Chỉnh sửa thông tin / Bổ sung Email
+                  </button>
+                </div>
               </div>
 
-              <div className="flex gap-2 w-full md:w-auto">
+              <div className="flex flex-wrap gap-2 w-full md:w-auto">
                 <Link
-                  href={`/checkin?session=BVPD-B1`}
+                  href="/checkin"
                   className="flex-1 md:flex-none text-center bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold uppercase tracking-wider px-4 py-2.5 rounded-lg whitespace-nowrap transition-colors"
                 >
                   ĐIỂM DANH CHECK-IN
                 </Link>
                 <Link
-                  href={`/checkout`}
+                  href="/checkout"
                   className="flex-1 md:flex-none text-center bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold uppercase tracking-wider px-4 py-2.5 rounded-lg whitespace-nowrap transition-colors"
                 >
                   CHECK-OUT
@@ -467,6 +540,112 @@ export default function StudentPortalPage() {
                 );
               })}
             </div>
+
+            {showEditProfile && (
+              <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                <div className="bg-slate-900 border border-slate-700 p-6 rounded-xl max-w-md w-full space-y-4 shadow-2xl">
+                  <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+                    <div>
+                      <span className="text-[10px] uppercase font-bold tracking-widest text-emerald-400">
+                        CẬP NHẬT THÔNG TIN CÁ NHÂN
+                      </span>
+                      <h3 className="text-base font-bold text-white mt-0.5">
+                        {studentData.fullName} ({studentData.studentCode})
+                      </h3>
+                    </div>
+                    <button
+                      onClick={() => setShowEditProfile(false)}
+                      className="text-xs text-slate-400 hover:text-white"
+                    >
+                      ✕ Đóng
+                    </button>
+                  </div>
+
+                  {profileMsg && (
+                    <div className="p-3 rounded-lg bg-rose-950/80 border border-rose-800 text-rose-200 text-xs">
+                      {profileMsg}
+                    </div>
+                  )}
+
+                  <form onSubmit={handleSaveProfile} className="space-y-3 text-xs">
+                    <div>
+                      <label className="block font-bold uppercase text-slate-300 mb-1">
+                        HỌ VÀ TÊN
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={profileForm.fullName}
+                        onChange={(e) => setProfileForm({ ...profileForm, fullName: e.target.value })}
+                        className="w-full bg-slate-950 border border-slate-700 text-white p-2.5 rounded-lg"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-bold uppercase text-emerald-400 mb-1">
+                        EMAIL NHẬN THÔNG BÁO KẾT QUẢ & NHẬN XÉT
+                      </label>
+                      <input
+                        type="email"
+                        value={profileForm.email}
+                        onChange={(e) => setProfileForm({ ...profileForm, email: e.target.value })}
+                        placeholder="example@phuongdonghospital.vn"
+                        className="w-full font-code bg-slate-950 border border-slate-700 text-white p-2.5 rounded-lg"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-bold uppercase text-slate-300 mb-1">
+                        SỐ ĐIỆN THOẠI
+                      </label>
+                      <input
+                        type="text"
+                        value={profileForm.phone}
+                        onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
+                        placeholder="0912..."
+                        className="w-full font-code bg-slate-950 border border-slate-700 text-white p-2.5 rounded-lg"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-bold uppercase text-slate-300 mb-1">
+                        CHỨC DANH
+                      </label>
+                      <input
+                        type="text"
+                        value={profileForm.title}
+                        onChange={(e) => setProfileForm({ ...profileForm, title: e.target.value })}
+                        className="w-full bg-slate-950 border border-slate-700 text-white p-2.5 rounded-lg"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-bold uppercase text-slate-300 mb-1">
+                        KHOA / PHÒNG / BỘ PHẬN
+                      </label>
+                      <input
+                        type="text"
+                        value={profileForm.department}
+                        onChange={(e) => setProfileForm({ ...profileForm, department: e.target.value })}
+                        className="w-full bg-slate-950 border border-slate-700 text-white p-2.5 rounded-lg"
+                      />
+                    </div>
+                    <div className="flex gap-3 pt-3 border-t border-slate-800">
+                      <button
+                        type="button"
+                        onClick={() => setShowEditProfile(false)}
+                        className="w-1/3 bg-slate-800 text-slate-300 text-xs font-bold uppercase py-2.5 rounded-lg"
+                      >
+                        HỦY
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={savingProfile}
+                        className="w-2/3 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold uppercase py-2.5 rounded-lg shadow-lg"
+                      >
+                        {savingProfile ? "ĐANG LƯU..." : "LƯU CẬP NHẬT"}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </main>

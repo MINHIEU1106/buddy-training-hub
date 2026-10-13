@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { GOAL_CASCADE_GROUPS } from "@/lib/goal-cascade-groups";
+import { GOAL_CASCADE_GROUPS, getStudentGroupNumber } from "@/lib/goal-cascade-groups";
 
 interface WorkItem {
   id: string;
@@ -454,10 +454,16 @@ export default function GoalCascadeWorkspacePage() {
     return null;
   };
 
-  // Mã học viên đăng nhập ở Cổng học viên
+  // Mã học viên đăng nhập ở Cổng học viên & tự động chọn đúng nhóm của học viên
   useEffect(() => {
     const saved = localStorage.getItem("buddy_student_code") || "";
     setPlan((prev) => ({ ...prev, studentCode: saved }));
+    if (saved) {
+      const grpNum = getStudentGroupNumber(saved);
+      if (grpNum && grpNum >= 1 && grpNum <= 8) {
+        setSelectedDeptIndex(grpNum - 1);
+      }
+    }
   }, []);
 
   // Tải thông tin bài nộp, bản nháp đã lưu & nhận xét của giảng viên cho nhóm đang chọn

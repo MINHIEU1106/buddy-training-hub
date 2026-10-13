@@ -341,7 +341,7 @@ export async function GET(req: NextRequest) {
 
     wsStd.mergeCells("A2:H2");
     const subCell3 = wsStd.getCell("A2");
-    subCell3.value = `Danh sách 20 Cán bộ quản lý • Cấp mã điểm danh & nộp bài tự động`;
+    subCell3.value = `Danh sách ${students.length} Cán bộ quản lý • Cấp mã điểm danh & nộp bài tự động`;
     subCell3.font = { name: FONT_FAMILY, size: 10.5, italic: true, color: { argb: "FF334155" } };
     subCell3.alignment = { horizontal: "center", vertical: "middle" };
     wsStd.getRow(2).height = 22;

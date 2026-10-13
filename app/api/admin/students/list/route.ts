@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(req: NextRequest) {
   try {
     const students = await prisma.student.findMany({
       where: { status: "ACTIVE" },
-      orderBy: { fullName: "asc" },
+      orderBy: { studentCode: "asc" },
       include: {
         attendances: true,
       },
