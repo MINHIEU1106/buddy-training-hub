@@ -35,12 +35,18 @@ export default function AdminGoalCascadePage() {
   // QR Modal state
   const [showQrModal, setShowQrModal] = useState<boolean>(false);
   const [qrMode, setQrMode] = useState<"IN_CLASS" | "HOMEWORK">("IN_CLASS");
-  const [qrDataUrl, setQrDataUrl] = useState<string>("");
+  const [baseOrigin, setBaseOrigin] = useState("https://buddytrain.netlify.app");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setBaseOrigin(window.location.origin);
+    }
+  }, []);
 
   const practiceUrl =
     qrMode === "IN_CLASS"
-      ? "https://buddytrain.netlify.app/portal/goal-cascade"
-      : "https://buddytrain.netlify.app/portal/homework-plan";
+      ? `${baseOrigin}/portal/goal-cascade`
+      : `${baseOrigin}/portal/homework-plan`;
 
   useEffect(() => {
     QRCode.toDataURL(practiceUrl, {

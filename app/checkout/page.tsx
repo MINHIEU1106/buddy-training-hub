@@ -118,24 +118,27 @@ function CheckOutForm() {
           </form>
         </div>
       ) : (
-        <div className="bg-slate-800 border border-slate-700 p-6 sm:p-8 rounded-xl shadow-2xl">
-          <div className="text-center mb-6">
-            <span className={`inline-block text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-md border whitespace-nowrap ${
-              result.attendance.checkOutStatus === "COMPLETED"
-                ? "bg-emerald-950 text-emerald-300 border-emerald-700"
-                : "bg-amber-950 text-amber-300 border-amber-700"
-            }`}>
-              {result.attendance.checkOutStatus === "COMPLETED" ? "HOÀN THÀNH BUỔI HỌC" : "CHECK-OUT VỀ SỚM"}
+        <div className="bg-slate-800 border-2 border-amber-500/80 p-6 sm:p-8 rounded-2xl shadow-2xl space-y-5">
+          <div className="text-center">
+            <span className="inline-block text-xs font-black uppercase tracking-widest px-4 py-2 rounded-xl bg-amber-400 text-slate-950 shadow-lg font-mono">
+              ✓ CHECK-OUT THÀNH CÔNG!
             </span>
-            <h2 className="text-2xl font-extrabold text-white mt-4">
+            <div className="text-xs text-amber-300 font-bold mt-2">
+              {result.attendance.checkOutStatus === "COMPLETED" ? "Đã ghi nhận hoàn thành buổi học trọn vẹn" : "Đã ghi nhận check-out ra về"}
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-white mt-3">
               {result.student.fullName}
             </h2>
-            <p className="text-sm text-slate-300 mt-1">
-              {result.student.title || "Học viên"}
+            <p className="text-xs font-semibold text-slate-300 mt-1">
+              {result.student.title || "Học viên"} • {result.student.department || "BV Phương Đông"}
             </p>
           </div>
 
-          <div className="bg-slate-900/90 border border-slate-700 rounded-lg p-4 space-y-2 text-xs mb-6">
+          <div className="bg-slate-900/90 border border-slate-700 rounded-xl p-4 space-y-2 text-xs">
+            <div className="flex justify-between py-1 border-b border-slate-800">
+              <span className="text-slate-400 font-semibold uppercase">MÃ HỌC VIÊN:</span>
+              <span className="text-emerald-400 font-code font-bold text-sm">{result.student.studentCode}</span>
+            </div>
             <div className="flex justify-between py-1 border-b border-slate-800">
               <span className="text-slate-400 font-semibold uppercase">BUỔI HỌC:</span>
               <span className="text-slate-200 font-bold">{result.session.title}</span>
@@ -153,19 +156,44 @@ function CheckOutForm() {
               </span>
             </div>
             <div className="flex justify-between py-1">
-              <span className="text-slate-400 font-semibold uppercase">TỔNG THỜI GIAN:</span>
+              <span className="text-slate-400 font-semibold uppercase">TỔNG THỜI GIAN THAM DỰ:</span>
               <span className="text-white font-code font-bold">
                 {result.durationMins} phút (~{(result.durationMins / 60).toFixed(1)} giờ)
               </span>
             </div>
           </div>
 
-          <Link
-            href="/portal"
-            className="block w-full text-center bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm uppercase tracking-wider py-3.5 px-4 rounded-lg whitespace-nowrap transition-colors"
-          >
-            VÀO TRANG CÁ NHÂN & BÀI TẬP
-          </Link>
+          {/* Homework Action Box */}
+          <div className="bg-gradient-to-r from-blue-950 via-slate-900 to-indigo-950 border-2 border-blue-400/80 p-5 rounded-xl space-y-3 shadow-lg">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] bg-blue-500 text-white font-black px-2 py-0.5 rounded uppercase font-mono">
+                BÀI TẬP VỀ NHÀ
+              </span>
+              <span className="text-xs font-bold text-blue-300">NHẮC NHỞ HOÀN THÀNH</span>
+            </div>
+            <h4 className="text-sm font-bold text-white">
+              BTVN: Lập Kế Hoạch Công Việc Cá Nhân & 5W1H (2027)
+            </h4>
+            <p className="text-xs text-slate-300 leading-relaxed">
+              Bạn có thể bắt đầu làm bài tập về nhà online ngay tại đây theo biểu mẫu 3 bước chuẩn chỉnh:
+            </p>
+
+            <Link
+              href="/portal/homework-plan"
+              className="block w-full text-center bg-blue-500 hover:bg-blue-400 text-white font-black text-xs uppercase tracking-wider py-3.5 px-4 rounded-lg shadow-md transition font-mono"
+            >
+              📝 LÀM BTVN LẬP KẾ HOẠCH CÁ NHÂN (ONLINE) →
+            </Link>
+          </div>
+
+          <div>
+            <Link
+              href="/portal"
+              className="block w-full text-center bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold text-xs uppercase tracking-wider py-3 px-4 rounded-lg transition"
+            >
+              ← Về Trang Cá Nhân Học Viên
+            </Link>
+          </div>
         </div>
       )}
     </main>

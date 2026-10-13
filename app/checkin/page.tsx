@@ -127,56 +127,81 @@ function CheckInForm() {
         </div>
       ) : (
         /* Welcome and Identity Confirmation Screen */
-        <div className="bg-slate-800 border border-slate-700 p-6 sm:p-8 rounded-xl shadow-2xl">
-          <div className="text-center mb-6">
-            <span className={`inline-block text-xs font-bold uppercase tracking-widest px-3.5 py-1.5 rounded-lg border whitespace-nowrap ${
-              result.attendance.checkInStatus === "ON_TIME"
-                ? "bg-emerald-950 text-emerald-300 border-emerald-700"
-                : "bg-amber-950 text-amber-300 border-amber-700"
-            }`}>
-              {result.isDuplicate ? "BẠN ĐÃ ĐIỂM DANH TRƯỚC ĐÓ" : result.attendance.checkInStatus === "ON_TIME" ? "CHECK-IN ĐÚNG GIỜ" : "CHECK-IN ĐI TRỄ"}
+        <div className="bg-slate-800 border-2 border-emerald-600/80 p-6 sm:p-8 rounded-2xl shadow-2xl space-y-5">
+          <div className="text-center">
+            <span className="inline-block text-xs font-black uppercase tracking-widest px-4 py-2 rounded-xl bg-emerald-500 text-slate-950 shadow-lg font-mono">
+              ✓ CHECK-IN THÀNH CÔNG!
             </span>
-            <h2 className="text-2xl font-extrabold text-white mt-4">
+            <div className="text-xs text-emerald-400 font-bold mt-2">
+              {result.isDuplicate ? "Hệ thống ghi nhận bạn đã điểm danh buổi này" : "Đã xác nhận có mặt tại buổi đào tạo"}
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-white mt-3">
               {result.student.fullName}
             </h2>
-            <p className="text-sm font-semibold text-emerald-400 mt-1">
-              {result.student.title || "Học viên"}
+            <p className="text-xs font-semibold text-slate-300 mt-1">
+              {result.student.title || "Học viên"} • {result.student.department || "BV Phương Đông"}
             </p>
           </div>
 
           {/* Student Info Card */}
-          <div className="bg-slate-900/90 border border-slate-700 rounded-lg p-4 space-y-2 text-xs mb-6">
-            <div className="flex justify-between py-1 border-b border-slate-800">
-              <span className="text-slate-400 font-semibold uppercase">ĐƠN VỊ / KHOA PHÒNG:</span>
-              <span className="text-slate-200 font-bold">{result.student.department || "BV Phương Đông"}</span>
-            </div>
-            <div className="flex justify-between py-1 border-b border-slate-800">
-              <span className="text-slate-400 font-semibold uppercase">CẤP QUẢN LÝ:</span>
-              <span className="text-slate-200 font-bold">{result.student.managementLevel || "Quản lý"}</span>
-            </div>
+          <div className="bg-slate-900/90 border border-slate-700 rounded-xl p-4 space-y-2 text-xs">
             <div className="flex justify-between py-1 border-b border-slate-800">
               <span className="text-slate-400 font-semibold uppercase">MÃ HỌC VIÊN:</span>
-              <span className="text-emerald-400 font-code font-bold">{result.student.studentCode}</span>
+              <span className="text-emerald-400 font-code font-bold text-sm">{result.student.studentCode}</span>
             </div>
             <div className="flex justify-between py-1 border-b border-slate-800">
               <span className="text-slate-400 font-semibold uppercase">BUỔI HỌC:</span>
               <span className="text-slate-200 font-bold">{result.session.title}</span>
             </div>
+            <div className="flex justify-between py-1 border-b border-slate-800">
+              <span className="text-slate-400 font-semibold uppercase">TRẠNG THÁI:</span>
+              <span className="text-emerald-400 font-bold font-mono">
+                {result.attendance.checkInStatus === "ON_TIME" ? "ĐÚNG GIỜ" : "ĐI TRỄ"}
+              </span>
+            </div>
             <div className="flex justify-between py-1">
               <span className="text-slate-400 font-semibold uppercase">GIỜ GHI NHẬN:</span>
               <span className="text-slate-200 font-code font-bold">
-                {formatTimeVN(result.attendance.checkInAt)} (Asia/Ho_Chi_Minh)
+                {formatTimeVN(result.attendance.checkInAt)}
               </span>
             </div>
           </div>
 
-          {/* Action buttons */}
+          {/* Homework & Practice Instant Access Box */}
+          <div className="bg-gradient-to-r from-teal-950 via-slate-900 to-blue-950 border-2 border-amber-400/80 p-5 rounded-xl space-y-3 shadow-lg">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] bg-amber-400 text-slate-950 font-black px-2 py-0.5 rounded uppercase font-mono">
+                BÀI TẬP BUỔI HỌC
+              </span>
+              <span className="text-xs font-bold text-amber-300">TRUY CẬP LÀM BÀI TRỰC TIẾP</span>
+            </div>
+            <p className="text-xs text-slate-300 leading-relaxed">
+              Bạn có thể vào làm bài thực hành nhóm trên lớp hoặc làm bài tập về nhà ngay bên dưới:
+            </p>
+
+            <div className="space-y-2 pt-1">
+              <Link
+                href="/portal/goal-cascade"
+                className="block w-full text-center bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs uppercase tracking-wider py-3 px-4 rounded-lg shadow-md transition font-mono"
+              >
+                👥 VÀO BÀN THỰC HÀNH BUỔI 1 (8 NHÓM) →
+              </Link>
+              <Link
+                href="/portal/homework-plan"
+                className="block w-full text-center bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider py-3 px-4 rounded-lg shadow-md transition font-mono"
+              >
+                📝 LÀM BTVN LẬP KẾ HOẠCH CÁ NHÂN (ONLINE 3 BƯỚC) →
+              </Link>
+            </div>
+          </div>
+
+          {/* Action to Full Portal */}
           <div>
             <Link
               href="/portal"
-              className="block w-full text-center bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm uppercase tracking-wider py-3.5 px-4 rounded-lg whitespace-nowrap transition-colors shadow-lg"
+              className="block w-full text-center bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold text-xs uppercase tracking-wider py-3 px-4 rounded-lg transition"
             >
-              VÀO TRANG CÁ NHÂN & NỘP BÀI
+              ← Về Trang Cá Nhân Học Viên
             </Link>
           </div>
         </div>

@@ -508,9 +508,19 @@ export default function HomeworkPlanWorkspacePage() {
 
   // Submit plan to API: Lưu vào bài nộp cá nhân của học viên
   const handleSubmitPlan = async () => {
-    if (!plan.studentCode) {
-      alert("Bạn chưa có mã học viên. Vui lòng nhập mã học viên ở Cổng học viên trước khi nộp.");
-      return;
+    let finalCode = plan.studentCode;
+    if (!finalCode) {
+      const input = prompt("Nhập Mã học viên của bạn để ghi nhận BTVN (VD: HV01 - HV80):");
+      if (!input || !input.trim()) {
+        alert("Vui lòng nhập mã học viên để hệ thống ghi nhận người nộp bài.");
+        return;
+      }
+      finalCode = input.trim().toUpperCase();
+      if (!finalCode.startsWith("HV") && /^\d+$/.test(finalCode)) {
+        finalCode = `HV${finalCode.padStart(2, "0")}`;
+      }
+      localStorage.setItem("buddy_student_code", finalCode);
+      setPlan((prev) => ({ ...prev, studentCode: finalCode }));
     }
     const validationError = validatePlanBeforeSubmit();
     if (validationError) {

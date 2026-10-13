@@ -547,9 +547,19 @@ export default function GoalCascadeWorkspacePage() {
       alert("Đã hết thời gian thực hành (25 phút). Hệ thống đã đóng cổng nộp bài.");
       return;
     }
-    if (!plan.studentCode) {
-      alert("Bạn chưa đăng nhập mã học viên. Vui lòng vào Cổng học viên để đăng nhập trước khi nộp.");
-      return;
+    let finalCode = plan.studentCode;
+    if (!finalCode) {
+      const input = prompt("Nhập Mã học viên đại diện nộp bài cho nhóm (VD: HV01 - HV80):");
+      if (!input || !input.trim()) {
+        alert("Vui lòng nhập mã học viên để hệ thống ghi nhận người nộp bài cho nhóm.");
+        return;
+      }
+      finalCode = input.trim().toUpperCase();
+      if (!finalCode.startsWith("HV") && /^\d+$/.test(finalCode)) {
+        finalCode = `HV${finalCode.padStart(2, "0")}`;
+      }
+      localStorage.setItem("buddy_student_code", finalCode);
+      setPlan((prev) => ({ ...prev, studentCode: finalCode }));
     }
     const validationError = validatePlanBeforeSubmit();
     if (validationError) {
