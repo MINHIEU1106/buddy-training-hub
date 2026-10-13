@@ -247,7 +247,7 @@ export default function AdminGoalCascadePage() {
               </h2>
               <p className="text-xs text-slate-500 mt-1">
                 {qrMode === "IN_CLASS"
-                  ? "Phân rã mục tiêu BV 'Người bệnh hài lòng ≥ 90%' & Lập kế hoạch hành động 5W1H"
+                  ? "Phân rã mục tiêu BV 'Người bệnh hài lòng ≥ 98%' & Lập kế hoạch hành động 5W1H"
                   : "Biểu mẫu lập kế hoạch công việc cá nhân / khoa phòng 3 bước online"}
               </p>
             </div>
@@ -305,7 +305,7 @@ export default function AdminGoalCascadePage() {
                 BẢNG TỔNG HỢP MỤC TIÊU
               </span>
               <h2 className="text-sm font-bold text-slate-900 uppercase tracking-tight">
-                Mục Tiêu Phân Rã Về 8 Khối / Khoa Phòng (Đóng góp vào mục tiêu BV ≥ 90%)
+                Mục Tiêu Phân Rã Về 8 Khối / Khoa Phòng (Đóng góp vào mục tiêu BV ≥ 98%)
               </h2>
             </div>
             <p className="text-xs text-slate-500 mt-1">

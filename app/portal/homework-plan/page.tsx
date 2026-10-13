@@ -283,7 +283,7 @@ export default function HomeworkPlanWorkspacePage() {
       frequency: "Hàng tuần (Đo lường) / Hàng tháng (Review Ban Giám đốc)",
       source: "Hệ thống khảo sát Tablet tại sảnh & Báo cáo thời gian thực HIS",
       reviewer: "Trưởng khoa & Phòng Quản lý Chất lượng",
-      greenThreshold: "Hài lòng ≥ 90% hoặc thời gian chờ ≤ 30 phút",
+      greenThreshold: "Hài lòng ≥ 98% hoặc thời gian chờ ≤ 30 phút",
       yellowThreshold: "Hài lòng 85% - 89% hoặc thời gian chờ 31 - 38 phút",
       redThreshold: "Hài lòng < 85% hoặc thời gian chờ > 38 phút",
       deviationAction: "Kích hoạt họp khẩn trong 24h, bổ sung 01 bác sĩ khám tăng cường và rà soát lại luồng phát số tự động.",
@@ -765,7 +765,7 @@ export default function HomeworkPlanWorkspacePage() {
               <div className="space-y-4 max-w-4xl">
                 <div className="bg-teal-50 border-l-4 border-[#00685E] p-3 text-xs text-teal-900">
                   <strong>Nguyên tắc Bước 1:</strong> Phát biểu một câu tuyên bố mục tiêu rõ ràng, định hướng trực tiếp
-                  đóng góp vào mục tiêu chung &quot;Tỷ lệ người bệnh hài lòng ≥ 90%&quot; của Bệnh viện Phương Đông.
+                  đóng góp vào mục tiêu chung &quot;Tỷ lệ người bệnh hài lòng ≥ 98%&quot; của Bệnh viện Phương Đông.
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
@@ -1274,7 +1274,7 @@ export default function HomeworkPlanWorkspacePage() {
                 </span>
                 <span className="text-xs font-mono font-bold text-teal-200">Trọng số: 100%</span>
               </div>
-              <h3 className="text-base font-bold mt-2">Mục tiêu 2027: Tỷ lệ người bệnh hài lòng chung đạt ≥ 90%</h3>
+              <h3 className="text-base font-bold mt-2">Mục tiêu 2027: Tỷ lệ người bệnh hài lòng chung đạt ≥ 98%</h3>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-3 text-xs text-teal-100 border-t border-teal-700/60 pt-2">
                 <div>Hạn chót: <strong>31/12/2027</strong></div>
                 <div>Chủ trì: <strong>Ban Giám đốc BV</strong></div>

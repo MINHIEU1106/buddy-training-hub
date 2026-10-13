@@ -252,7 +252,7 @@ export default function StudentPortalPage() {
                   Công Cụ Phân Rã Mục Tiêu BV & Lập Kế Hoạch 5W1H (Quy Trình 3 Bước - 8 Nhóm)
                 </h3>
                 <p className="text-xs text-teal-100 max-w-2xl">
-                  Mục tiêu gốc: <strong>&quot;Tỷ lệ người bệnh hài lòng ≥ 90%&quot;</strong>. Phân rã mục tiêu theo 8 nhóm Khoa/Phòng/Đơn vị, lập kế hoạch hành động 5W1H, sơ đồ Gantt và bảng theo dõi chỉ tiêu.
+                  Mục tiêu gốc: <strong>&quot;Tỷ lệ người bệnh hài lòng ≥ 98%&quot;</strong>. Phân rã mục tiêu theo 8 nhóm Khoa/Phòng/Đơn vị, lập kế hoạch hành động 5W1H, sơ đồ Gantt và bảng theo dõi chỉ tiêu.
                 </p>
               </div>
 
