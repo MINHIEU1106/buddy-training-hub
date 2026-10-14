@@ -59,6 +59,32 @@ const SAMPLE_DEPARTMENTS = [
     goal: "Rút ngắn thời gian chờ khám và trả kết quả xét nghiệm/CĐHA, tối ưu luồng đón tiếp ngoại trú",
     target: "Thời gian chờ khám ≤ 30 phút, trả kết quả CLS ≤ 45 phút, hài lòng ≥ 92%",
     baseline: "Thời gian chờ khám 45 phút, CLS 60 phút, hài lòng 84%",
+    defaultResults: [
+      {
+        id: "kr1",
+        indicator: "Thời gian chờ khám trung bình",
+        unit: "Phút",
+        baseline: "45",
+        target: "≤ 30",
+        deadline: "2027-06-30",
+      },
+      {
+        id: "kr2",
+        indicator: "Thời gian trả kết quả Cận lâm sàng (CLS)",
+        unit: "Phút",
+        baseline: "60",
+        target: "≤ 45",
+        deadline: "2027-06-30",
+      },
+      {
+        id: "kr3",
+        indicator: "Tỷ lệ người bệnh ngoại trú hài lòng chung",
+        unit: "%",
+        baseline: "84",
+        target: "≥ 92",
+        deadline: "2027-12-31",
+      },
+    ],
     defaultWorks: [
       {
         id: "w1",
@@ -132,22 +158,53 @@ const SAMPLE_DEPARTMENTS = [
   },
   {
     name: GOAL_CASCADE_GROUPS[3],
-    goal: "Chuẩn hóa văn hóa giao tiếp AIDET, thái độ phục vụ và kiểm soát nhiễm khuẩn buồng bệnh",
-    target: "100% điều dưỡng tuân thủ tiêu chuẩn giao tiếp AIDET, hài lòng điều dưỡng ≥ 95%",
-    baseline: "Hài lòng 86%, còn 5 phản ánh thái độ/tháng",
+    goal: "Đến tháng 12 năm 2026, tỷ lệ hài lòng người bệnh nội trú tại các khoa điều trị nội trú, Bệnh viện đa khoa Phương Đông đạt 98%",
+    target: "Tỷ lệ người bệnh hài lòng chung ≥ 98%, Thời gian chờ thanh toán ra viện ≤ 30 phút",
+    baseline: "Tỷ lệ người bệnh hài lòng chung 95%, Thời gian chờ thanh toán ra viện 45 phút",
+    defaultResults: [
+      {
+        id: "kr1",
+        indicator: "Tỷ lệ người bệnh hài lòng chung tại các khoa điều trị nội trú đạt 98%",
+        unit: "%",
+        baseline: "95",
+        target: "98",
+        deadline: "2026-12-31",
+      },
+      {
+        id: "kr2",
+        indicator: "Thời gian chờ thanh toán ra viện",
+        unit: "Phút",
+        baseline: "45",
+        target: "30",
+        deadline: "2026-12-31",
+      },
+    ],
     defaultWorks: [
       {
         id: "w1",
-        taskName: "Tập huấn và kiểm tra mô hình giao tiếp AIDET",
-        what: "Tập huấn và giám sát thực hiện mô hình giao tiếp AIDET tại toàn bộ các khoa",
-        why: "Xóa bỏ rào cản giao tiếp, giúp người bệnh và người nhà an tâm điều trị",
-        who: "Trưởng phòng Điều dưỡng",
-        coOwners: "Điều dưỡng trưởng các khoa, Khoa KSNK",
-        how: "Khóa đào tạo thực hành 4 buổi, kiểm tra đóng vai tình huống định kỳ",
-        whenStart: "2027-01-10",
-        whenEnd: "2027-03-31",
-        where: "Hội trường Hoa Sen & các khoa nội trú",
-        metric: "Tỷ lệ đạt chuẩn kiểm tra đột xuất ≥ 90%",
+        taskName: "Thông báo kế hoạch ra viện của người bệnh ",
+        what: "Cải tiến quy trình ra viện ",
+        why: "Để điều dưỡng hoàn thiện bảng kê, quy trình kỹ thuật thực hiện trong ngày ra viện",
+        who: "Trưởng các Khoa/Trung tâm điều trị nội trú",
+        coOwners: "qldv",
+        how: "Bác sĩ lập kế hoạch ra viện. Cung cấp đầy đủ chữ ký số cho BS, ĐD. Giám sát tuân thủ quy trình ra viện của người bệnh.",
+        whenStart: "2026-01-10",
+        whenEnd: "2026-03-11",
+        where: "Khu vực tiếp đón & sảnh khám ngoại trú Tầng 1",
+        metric: "Tỷ lệ bệnh nhân đặt hẹn trước đạt ≥ 40%",
+      },
+      {
+        id: "w2",
+        taskName: "Tái cấu trúc luồng di chuyển Cận lâm sàng",
+        what: "Tái cấu trúc luồng di chuyển cận lâm sàng (Xét nghiệm - Siêu âm - X-quang)",
+        why: "Rút ngắn quãng đường và thời gian chờ lấy kết quả",
+        who: "Phó Trưởng khoa Khám bệnh phụ trách Vận hành",
+        coOwners: "Khoa Xét nghiệm, Khoa CĐHA",
+        how: "Cài đặt màn hình thông báo thứ tự tự động, trả kết quả online vào hồ sơ",
+        whenStart: "2027-02-15",
+        whenEnd: "2027-06-30",
+        where: "Tầng 2 khu Cận lâm sàng",
+        metric: "Thời gian trả kết quả cận lâm sàng ≤ 45 phút",
       },
     ],
   },
@@ -325,17 +382,9 @@ export default function GoalCascadeWorkspacePage() {
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
-  // Switch template
+  // Switch group
   const handleSelectDepartment = (index: number) => {
     setSelectedDeptIndex(index);
-    const dept = SAMPLE_DEPARTMENTS[index];
-    setPlan((prev) => ({
-      ...prev,
-      department: dept.name,
-      step1_goal: dept.goal,
-      step3_6_works: dept.defaultWorks,
-    }));
-    setAutoSaveMsg("Đã áp dụng mẫu " + dept.name);
   };
 
   // Clear to blank form for students to type from scratch
@@ -392,7 +441,16 @@ export default function GoalCascadeWorkspacePage() {
 
   // Reload reference sample
   const handleReloadSample = () => {
-    handleSelectDepartment(selectedDeptIndex);
+    const dept = SAMPLE_DEPARTMENTS[selectedDeptIndex];
+    if (!dept) return;
+    setPlan((prev) => ({
+      ...prev,
+      department: dept.name,
+      step1_goal: dept.goal,
+      step2_results: (dept as any).defaultResults || prev.step2_results,
+      step3_6_works: dept.defaultWorks,
+    }));
+    setAutoSaveMsg("Đã nạp lại mẫu gợi ý của " + dept.name);
   };
 
   // Add new Key Result
@@ -515,46 +573,79 @@ export default function GoalCascadeWorkspacePage() {
   // Tải thông tin bài nộp, bản nháp đã lưu & nhận xét của giảng viên cho nhóm đang chọn
   useEffect(() => {
     setTeacherComment("");
-    // 1. Phục hồi bản nháp cục bộ (nếu có)
-    try {
-      const savedDraft = localStorage.getItem(`goal_cascade_draft_group_${selectedDeptIndex}`);
-      if (savedDraft) {
-        const parsed = JSON.parse(savedDraft);
-        setPlan((prev) => ({
-          ...prev,
-          ...parsed,
-          department: GOAL_CASCADE_GROUPS[selectedDeptIndex],
-        }));
-        setAutoSaveMsg("Đã khôi phục bản nháp đang gõ");
-      }
-    } catch (e) {
-      console.error(e);
-    }
+    const dept = SAMPLE_DEPARTMENTS[selectedDeptIndex];
 
-    // 2. Tải bài nộp chính thức của nhóm này từ máy chủ
+    // 1. Tải bài nộp chính thức của nhóm này từ máy chủ
     fetch(`/api/goal-cascade?groupIndex=${selectedDeptIndex}`)
       .then((r) => r.json())
       .then((d) => {
-        if (d.plan) {
+        if (d.plan && d.plan.data?.plan) {
           setHasSubmitted(true);
           setSubmittedScore(d.plan.score || 0);
           setTeacherComment(d.plan.comment || "");
-          // Nếu đã nộp và không có nháp dở thì nạp dữ liệu đã nộp
-          if (!localStorage.getItem(`goal_cascade_draft_group_${selectedDeptIndex}`) && d.plan.data?.plan) {
-            setPlan((prev) => ({
-              ...prev,
-              ...d.plan.data.plan,
-              department: GOAL_CASCADE_GROUPS[selectedDeptIndex],
-            }));
-          }
+          // Luôn ưu tiên nạp dữ liệu bài nộp thật của nhóm từ máy chủ
+          setPlan((prev) => ({
+            ...prev,
+            ...d.plan.data.plan,
+            department: GOAL_CASCADE_GROUPS[selectedDeptIndex],
+          }));
+          try {
+            localStorage.setItem(
+              `goal_cascade_draft_group_${selectedDeptIndex}`,
+              JSON.stringify(d.plan.data.plan)
+            );
+          } catch (e) {}
+          setAutoSaveMsg("Đã tải bài làm của " + GOAL_CASCADE_GROUPS[selectedDeptIndex]);
         } else {
           setHasSubmitted(false);
           setSubmittedScore(0);
+          // Chưa nộp: Kiểm tra bản nháp cục bộ
+          let loadedDraft = false;
+          try {
+            const savedDraft = localStorage.getItem(`goal_cascade_draft_group_${selectedDeptIndex}`);
+            if (savedDraft) {
+              const parsed = JSON.parse(savedDraft);
+              setPlan((prev) => ({
+                ...prev,
+                ...parsed,
+                department: GOAL_CASCADE_GROUPS[selectedDeptIndex],
+              }));
+              setAutoSaveMsg("Đã khôi phục bản nháp đang gõ");
+              loadedDraft = true;
+            }
+          } catch (e) {
+            console.error(e);
+          }
+
+          // Nếu chưa có nháp, nạp mẫu mặc định
+          if (!loadedDraft && dept) {
+            setPlan((prev) => ({
+              ...prev,
+              department: dept.name,
+              step1_goal: dept.goal,
+              step2_results: (dept as any).defaultResults || prev.step2_results,
+              step3_6_works: dept.defaultWorks,
+            }));
+            setAutoSaveMsg("Đã áp dụng mẫu " + dept.name);
+          }
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        // Fallback khôi phục nháp nếu mất mạng
+        try {
+          const savedDraft = localStorage.getItem(`goal_cascade_draft_group_${selectedDeptIndex}`);
+          if (savedDraft) {
+            const parsed = JSON.parse(savedDraft);
+            setPlan((prev) => ({
+              ...prev,
+              ...parsed,
+              department: GOAL_CASCADE_GROUPS[selectedDeptIndex],
+            }));
+          }
+        } catch (e) {}
+      });
 
-    // 3. Tải danh sách bài nộp của cả 6 nhóm để hiện thị bức tranh toàn viện ở Tab Cây phân rã
+    // 2. Tải danh sách bài nộp của cả 8 nhóm để hiển thị ở Tab Cây phân rã
     fetch("/api/goal-cascade")
       .then((r) => r.json())
       .then((d) => {
