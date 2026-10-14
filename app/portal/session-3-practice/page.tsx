@@ -497,13 +497,13 @@ export default function Session3PracticePage() {
                 PHẦN 1
               </span>
               <h2 className="text-base font-extrabold text-slate-900 mt-1">
-                Cập Nhật Kết Quả Kế Hoạch Cá Nhân Sau Khi Được Review
+                Cập Nhật Kết Quả Kế Hoạch Sau Khi Được Review (Buổi 1)
               </h2>
             </div>
             <span className="text-xs text-slate-500 font-mono">
-              Trạng thái bài BTVN:{" "}
+              Trạng thái bài thực hành Buổi 1:{" "}
               <strong className={instructorReview ? "text-emerald-700" : "text-amber-600"}>
-                {instructorReview ? "Đã có nhận xét của Giảng viên" : "Đang chờ nhận xét (cho phép nạp dữ liệu nháp)"}
+                {instructorReview ? "Đã có nhận xét của Giảng viên" : "Đang chờ nhận xét (cho phép cập nhật nháp)"}
               </strong>
             </span>
           </div>
@@ -512,7 +512,7 @@ export default function Session3PracticePage() {
           <div className="p-4 rounded-lg bg-teal-50/60 border border-teal-200 text-xs space-y-1.5">
             <div className="flex items-center justify-between">
               <span className="font-bold text-[#00685E] uppercase tracking-wide">
-                💬 Nhận xét từ Giảng viên Buddy cho kế hoạch cá nhân của bạn:
+                💬 Nhận xét từ Giảng viên Buddy cho Bài thực hành Buổi 1 {instructorReview?.groupName || studentInfo?.groupName ? `(${instructorReview?.groupName || studentInfo?.groupName})` : ""}:
               </span>
               {instructorReview && (
                 <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-mono">
@@ -522,7 +522,7 @@ export default function Session3PracticePage() {
             </div>
             <p className="text-slate-800 italic bg-white p-2.5 rounded border border-teal-100 whitespace-pre-wrap">
               {instructorReview?.publicComment ||
-                "Bài kế hoạch của bạn đang đợi Giảng viên phản hồi. Bạn vẫn có thể đối chiếu mục tiêu và chủ động cập nhật mức thực tế tại buổi học hôm nay."}
+                `Bài thực hành của ${studentInfo?.groupName || "nhóm bạn"} đang đợi Giảng viên gửi nhận xét từ màn hình điều phối. Bạn vẫn có thể đối chiếu mục tiêu và chủ động cập nhật mức thực tế tại buổi học hôm nay.`}
             </p>
           </div>
 
@@ -553,7 +553,7 @@ export default function Session3PracticePage() {
                   {kpiRows.length === 0 ? (
                     <tr>
                       <td colSpan={6} className="p-4 text-center text-slate-400 italic">
-                        Chưa có dữ liệu chỉ tiêu từ Kế hoạch cá nhân.
+                        Chưa có dữ liệu chỉ tiêu từ Kế hoạch thực hành Buổi 1 của nhóm.
                       </td>
                     </tr>
                   ) : (

@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { normalizeCode } from "@/lib/code-generator";
+import { getStudentGroupNumber, getStudentGroupName, GOAL_CASCADE_GROUPS } from "@/lib/goal-cascade-groups";
 
 export const dynamic = "force-dynamic";
 
 // GET /api/session-3-practice?code=HV01
 // Trả về dữ liệu:
-// 1. Học viên & BTVN cá nhân Buổi 1 (kèm review của giảng viên)
+// 1. Học viên & Bài thực hành Buổi 1 của chính nhóm học viên (kèm review của giảng viên)
 // 2. Tình huống chậm tiến độ (cá nhân hóa hoặc tình huống mẫu của admin)
 // 3. Bài nộp Buổi 3 đã có (nếu đã từng nộp)
 export async function GET(req: NextRequest) {
@@ -52,12 +53,43 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Học viên không tồn tại" }, { status: 404 });
     }
 
-    // 1. Tìm bài BTVN cá nhân Buổi 1 (POST_SESSION)
+    // 0. Xác định nhóm của học viên trong Buổi 1 (Goal Cascade)
+    const studentGroupNum = getStudentGroupNumber(student.studentCode, student.groupNumber);
+    const studentGroupName = getStudentGroupName(student.studentCode, student.groupNumber);
+    let groupPlan: any = null;
+
+    if (studentGroupNum && studentGroupNum >= 1 && studentGroupNum <= GOAL_CASCADE_GROUPS.length) {
+      const groupIndex = studentGroupNum - 1;
+      groupPlan = await prisma.goalCascadePlan.findUnique({
+        where: { groupIndex },
+      });
+    }
+
+    // 1. Tìm bài và nhận xét Buổi 1: Ưu tiên nhận xét bài thực hành Buổi 1 theo đúng nhóm của học viên
     let homeworkSub: any = null;
     let homeworkReview: any = null;
     let homeworkPlanData: any = null;
+    let planSource: "GROUP_PRACTICE" | "INDIVIDUAL_HOMEWORK" = "GROUP_PRACTICE";
 
-    if (student.course?.sessions) {
+    if (groupPlan) {
+      if (groupPlan.data && typeof groupPlan.data === "object" && (groupPlan.data as any).plan) {
+        homeworkPlanData = (groupPlan.data as any).plan;
+      }
+      if (groupPlan.comment) {
+        homeworkReview = {
+          grade: (groupPlan.score >= 90) ? "XUAT_SAC" : (groupPlan.score >= 80 ? "DAT" : "CAN_CHINH_SUA"),
+          publicComment: groupPlan.comment,
+          reviewedAt: groupPlan.updatedAt,
+          reviewerName: "Giảng viên Buddy (Hội trường)",
+          source: "GROUP_PRACTICE",
+          groupName: groupPlan.groupName,
+          score: groupPlan.score,
+        };
+      }
+    }
+
+    // Nếu nhóm chưa có nhận xét, tìm bài BTVN cá nhân Buổi 1 (nếu có)
+    if (!homeworkReview && student.course?.sessions) {
       for (const sess of student.course.sessions) {
         for (const assign of sess.assignments) {
           if (assign.type === "POST_SESSION" || assign.title.includes("kế hoạch cá nhân")) {
@@ -66,8 +98,9 @@ export async function GET(req: NextRequest) {
               homeworkSub = latestSub;
               if (latestSub.reviews?.length > 0) {
                 homeworkReview = latestSub.reviews[0];
+                planSource = "INDIVIDUAL_HOMEWORK";
               }
-              if (latestSub.note) {
+              if (!homeworkPlanData && latestSub.note) {
                 try {
                   homeworkPlanData = JSON.parse(latestSub.note);
                 } catch (e) {}
@@ -76,7 +109,7 @@ export async function GET(req: NextRequest) {
             }
           }
         }
-        if (homeworkSub) break;
+        if (homeworkReview) break;
       }
     }
 
@@ -157,19 +190,24 @@ export async function GET(req: NextRequest) {
         fullName: student.fullName,
         title: student.title,
         department: student.department,
-        groupNumber: student.groupNumber,
+        groupNumber: studentGroupNum || student.groupNumber,
+        groupName: studentGroupName,
       },
       homeworkPlan: {
-        hasSubmission: !!homeworkSub,
-        submittedAt: homeworkSub?.submittedAt,
-        status: homeworkSub?.status,
+        hasSubmission: !!groupPlan || !!homeworkSub,
+        submittedAt: groupPlan?.submittedAt || homeworkSub?.submittedAt,
+        status: groupPlan?.comment ? "ĐÃ NHẬN XÉT" : (groupPlan ? "ĐÃ NỘP" : homeworkSub?.status),
         planData: homeworkPlanData,
+        groupName: studentGroupName,
+        source: planSource,
         review: homeworkReview
           ? {
               grade: homeworkReview.grade,
               publicComment: homeworkReview.publicComment,
               reviewedAt: homeworkReview.reviewedAt,
-              reviewerName: homeworkReview.reviewer?.fullName,
+              reviewerName: homeworkReview.reviewerName || homeworkReview.reviewer?.fullName || "Giảng viên Buddy",
+              groupName: homeworkReview.groupName || studentGroupName,
+              score: homeworkReview.score,
             }
           : null,
       },
