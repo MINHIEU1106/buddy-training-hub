@@ -125,7 +125,7 @@ export default function AdminGoalCascadePage() {
             📱 HIỆN MÃ QR BÀI TẬP THỰC HÀNH
           </button>
           <Link
-            href="/portal/goal-cascade"
+            href="/portal/goal-cascade?admin=1"
             target="_blank"
             className="text-xs font-bold bg-white text-[#00685E] border border-[#00685E] px-3.5 py-2 rounded hover:bg-teal-50 transition"
           >
@@ -199,7 +199,7 @@ export default function AdminGoalCascadePage() {
               📱 Chiếu QR Code
             </button>
             <Link
-              href="/portal/goal-cascade"
+              href="/portal/goal-cascade?admin=1"
               target="_blank"
               className="text-xs font-bold bg-white text-slate-950 px-2.5 py-1.5 rounded text-center hover:bg-slate-100 transition font-mono"
             >
@@ -468,7 +468,7 @@ export default function AdminGoalCascadePage() {
               <h3 className="text-base font-bold text-slate-900">{GOAL_CASCADE_GROUPS[selectedGroup]}</h3>
               <div className="flex items-center gap-1.5">
                 <Link
-                  href={`/portal/goal-cascade?code=${active?.submittedByCode || ""}`}
+                  href={`/portal/goal-cascade?code=${active?.submittedByCode || ""}&admin=1`}
                   target="_blank"
                   className="text-[11px] font-bold px-2.5 py-1 rounded bg-teal-50 text-teal-800 border border-teal-200 hover:bg-teal-100 transition inline-flex items-center gap-1"
                   title="Mở Sơ đồ Gantt tiến độ 12 tháng của nhóm này"
@@ -476,7 +476,7 @@ export default function AdminGoalCascadePage() {
                   📊 Sơ đồ Gantt ↗
                 </Link>
                 <Link
-                  href={`/portal/goal-cascade?code=${active?.submittedByCode || ""}`}
+                  href={`/portal/goal-cascade?code=${active?.submittedByCode || ""}&admin=1`}
                   target="_blank"
                   className="text-[11px] font-bold px-2.5 py-1 rounded bg-blue-50 text-blue-800 border border-blue-200 hover:bg-blue-100 transition inline-flex items-center gap-1"
                   title="Mở Bảng theo dõi chỉ tiêu KPIs & Tiến độ"
@@ -546,7 +546,7 @@ export default function AdminGoalCascadePage() {
                   <div className="flex items-center gap-2">
                     {active && (
                       <Link
-                        href={`/portal/goal-cascade?code=${active.submittedByCode}`}
+                        href={`/portal/goal-cascade?code=${active.submittedByCode}&admin=1`}
                         target="_blank"
                         className="text-xs font-bold text-teal-800 bg-teal-50 hover:bg-teal-100 border border-teal-200 px-3 py-2 rounded transition inline-flex items-center gap-1"
                         title="Mở giao diện nhóm này dưới góc nhìn học viên để xem nhận xét"

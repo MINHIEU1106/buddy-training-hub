@@ -309,6 +309,9 @@ export default function GoalCascadeWorkspacePage() {
   const [allGroupPlans, setAllGroupPlans] = useState<any[]>([]);
   const isTimeOver = activeTimer <= 0;
 
+  // Admin & Student Role State
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
+
   // Student Identity State
   const [currentStudent, setCurrentStudent] = useState<{
     studentCode: string;
@@ -320,6 +323,10 @@ export default function GoalCascadeWorkspacePage() {
   const [quickInputCode, setQuickInputCode] = useState<string>("");
   const [isIdentifying, setIsIdentifying] = useState<boolean>(false);
   const [identityError, setIdentityError] = useState<string>("");
+
+  const studentGroupNum = currentStudent
+    ? getStudentGroupNumber(currentStudent.studentCode, currentStudent.groupNumber)
+    : null;
 
   // Form State
   const [plan, setPlan] = useState<GoalPlan>({
@@ -561,14 +568,34 @@ export default function GoalCascadeWorkspacePage() {
     }
   };
 
-  // Mã học viên đăng nhập ở Cổng học viên / Check-in & tự động chọn đúng nhóm của học viên
+  // Check Admin & Mã học viên đăng nhập ở Cổng học viên / Check-in
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlAdmin = urlParams.get("admin");
+      const urlRole = urlParams.get("role");
+      const savedAdmin = localStorage.getItem("buddy_admin_user");
+      if (urlAdmin === "1" || urlAdmin === "true" || urlRole === "admin" || !!savedAdmin) {
+        setIsAdmin(true);
+      }
+    }
+
     const urlCode = new URLSearchParams(window.location.search).get("code");
     const saved = urlCode || localStorage.getItem("buddy_student_code") || "";
     if (saved) {
       applyStudentIdentity(saved);
     }
   }, []);
+
+  // Nếu là học viên, tự động khóa vào nhóm của học viên (không cho chuyển sang nhóm khác)
+  useEffect(() => {
+    if (!isAdmin && studentGroupNum && studentGroupNum >= 1 && studentGroupNum <= 8) {
+      const targetIdx = studentGroupNum - 1;
+      if (selectedDeptIndex !== targetIdx) {
+        setSelectedDeptIndex(targetIdx);
+      }
+    }
+  }, [isAdmin, studentGroupNum, selectedDeptIndex]);
 
   // Tải thông tin bài nộp, bản nháp đã lưu & nhận xét của giảng viên cho nhóm đang chọn
   useEffect(() => {
@@ -868,22 +895,53 @@ export default function GoalCascadeWorkspacePage() {
         {/* Department / Group Selector Bar */}
         <div className="bg-white border border-slate-200 rounded-lg p-4 mb-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex flex-wrap items-center gap-3">
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Chọn Khoa/Phòng phân vai:</span>
-            <div className="flex flex-wrap gap-1.5">
-              {SAMPLE_DEPARTMENTS.map((dept, idx) => (
-                <button
-                  key={dept.name}
-                  onClick={() => handleSelectDepartment(idx)}
-                  className={`text-xs font-medium px-3 py-1.5 rounded border transition ${
-                    selectedDeptIndex === idx
-                      ? "bg-[#00685E] text-white border-[#00685E] font-bold shadow-sm"
-                      : "bg-slate-50 text-slate-700 border-slate-300 hover:bg-slate-100"
-                  }`}
-                >
-                  {dept.name}
-                </button>
-              ))}
-            </div>
+            {isAdmin ? (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                    Chọn Khoa/Phòng phân vai:
+                  </span>
+                  <span className="text-[10px] bg-slate-900 text-amber-300 font-bold px-2 py-0.5 rounded font-mono uppercase">
+                    🛡️ Quản trị viên (Xem toàn bộ 8 nhóm)
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {SAMPLE_DEPARTMENTS.map((dept, idx) => (
+                    <button
+                      key={dept.name}
+                      onClick={() => handleSelectDepartment(idx)}
+                      className={`text-xs font-medium px-3 py-1.5 rounded border transition ${
+                        selectedDeptIndex === idx
+                          ? "bg-[#00685E] text-white border-[#00685E] font-bold shadow-sm"
+                          : "bg-slate-50 text-slate-700 border-slate-300 hover:bg-slate-100"
+                      }`}
+                    >
+                      {dept.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : studentGroupNum ? (
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2.5">
+                <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">
+                  Khoa/Phòng phân vai của bạn:
+                </span>
+                <div className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-[#00685E] text-white font-bold text-xs shadow-sm border border-teal-700">
+                  <span>🏛️</span>
+                  <span>{GOAL_CASCADE_GROUPS[studentGroupNum - 1]}</span>
+                  <span className="text-[10px] bg-amber-400 text-slate-950 font-black px-1.5 py-0.5 rounded font-mono uppercase ml-1">
+                    Nhóm bàn của bạn
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 text-xs text-amber-900 bg-amber-50 px-3.5 py-2 rounded-lg border border-amber-200">
+                <span>⚠️</span>
+                <span>
+                  Vui lòng <strong>nhập Mã học viên</strong> ở thanh danh tính phía trên để hệ thống tự động khóa vào nhóm phân công của bạn.
+                </span>
+              </div>
+            )}
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
@@ -1527,9 +1585,14 @@ export default function GoalCascadeWorkspacePage() {
               <div className="w-0.5 h-6 bg-slate-300"></div>
             </div>
 
-            {/* Level 2: Department Level (All 6 Groups with live data if available) */}
+            {/* Level 2: Department Level (Học viên chỉ thấy nhóm của mình, Admin thấy toàn bộ 8 nhóm) */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {GOAL_CASCADE_GROUPS.map((grpName, idx) => {
+              {GOAL_CASCADE_GROUPS.filter((_, idx) => {
+                if (isAdmin) return true;
+                if (!studentGroupNum) return true;
+                return idx === studentGroupNum - 1;
+              }).map((grpName) => {
+                const idx = GOAL_CASCADE_GROUPS.indexOf(grpName);
                 const sample = SAMPLE_DEPARTMENTS[idx] || SAMPLE_DEPARTMENTS[0];
                 const submittedPlan = allGroupPlans.find(
                   (p: any) => p.groupIndex === idx || p.department === grpName
