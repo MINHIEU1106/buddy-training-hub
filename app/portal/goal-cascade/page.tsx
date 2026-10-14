@@ -574,9 +574,22 @@ export default function GoalCascadeWorkspacePage() {
       const urlParams = new URLSearchParams(window.location.search);
       const urlAdmin = urlParams.get("admin");
       const urlRole = urlParams.get("role");
+      const urlGroup = urlParams.get("group");
+      const urlGroupIndex = urlParams.get("groupIndex");
       // CHỈ kích hoạt quyền Admin xem toàn bộ 8 nhóm khi có tham số ?admin=1 rõ ràng trên URL
       if (urlAdmin === "1" || urlAdmin === "true" || urlRole === "admin") {
         setIsAdmin(true);
+      }
+      if (urlGroup) {
+        const gNum = Number(urlGroup);
+        if (gNum >= 1 && gNum <= 8) {
+          setSelectedDeptIndex(gNum - 1);
+        }
+      } else if (urlGroupIndex !== null && urlGroupIndex !== undefined) {
+        const gIdx = Number(urlGroupIndex);
+        if (gIdx >= 0 && gIdx <= 7) {
+          setSelectedDeptIndex(gIdx);
+        }
       }
     }
 
@@ -587,8 +600,14 @@ export default function GoalCascadeWorkspacePage() {
     }
   }, []);
 
-  // Nếu đã xác định mã học viên, luôn tự động khóa cứng vào nhóm của học viên (không cho chuyển sang nhóm khác)
+  // Nếu đã xác định mã học viên và không phải Admin đang chỉ định group xem bài, luôn tự động khóa cứng vào nhóm của học viên
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get("admin") === "1" || urlParams.get("group") || urlParams.get("groupIndex")) {
+        return;
+      }
+    }
     if (studentGroupNum && studentGroupNum >= 1 && studentGroupNum <= 8) {
       const targetIdx = studentGroupNum - 1;
       if (selectedDeptIndex !== targetIdx) {
