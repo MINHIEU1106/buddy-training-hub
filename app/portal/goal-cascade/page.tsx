@@ -574,8 +574,8 @@ export default function GoalCascadeWorkspacePage() {
       const urlParams = new URLSearchParams(window.location.search);
       const urlAdmin = urlParams.get("admin");
       const urlRole = urlParams.get("role");
-      const savedAdmin = localStorage.getItem("buddy_admin_user");
-      if (urlAdmin === "1" || urlAdmin === "true" || urlRole === "admin" || !!savedAdmin) {
+      // CHỈ kích hoạt quyền Admin xem toàn bộ 8 nhóm khi có tham số ?admin=1 rõ ràng trên URL
+      if (urlAdmin === "1" || urlAdmin === "true" || urlRole === "admin") {
         setIsAdmin(true);
       }
     }
@@ -587,15 +587,15 @@ export default function GoalCascadeWorkspacePage() {
     }
   }, []);
 
-  // Nếu là học viên, tự động khóa vào nhóm của học viên (không cho chuyển sang nhóm khác)
+  // Nếu đã xác định mã học viên, luôn tự động khóa cứng vào nhóm của học viên (không cho chuyển sang nhóm khác)
   useEffect(() => {
-    if (!isAdmin && studentGroupNum && studentGroupNum >= 1 && studentGroupNum <= 8) {
+    if (studentGroupNum && studentGroupNum >= 1 && studentGroupNum <= 8) {
       const targetIdx = studentGroupNum - 1;
       if (selectedDeptIndex !== targetIdx) {
         setSelectedDeptIndex(targetIdx);
       }
     }
-  }, [isAdmin, studentGroupNum, selectedDeptIndex]);
+  }, [studentGroupNum, selectedDeptIndex]);
 
   // Tải thông tin bài nộp, bản nháp đã lưu & nhận xét của giảng viên cho nhóm đang chọn
   useEffect(() => {
@@ -895,7 +895,7 @@ export default function GoalCascadeWorkspacePage() {
         {/* Department / Group Selector Bar */}
         <div className="bg-white border border-slate-200 rounded-lg p-4 mb-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex flex-wrap items-center gap-3">
-            {isAdmin ? (
+            {isAdmin && !studentGroupNum ? (
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
@@ -1588,7 +1588,7 @@ export default function GoalCascadeWorkspacePage() {
             {/* Level 2: Department Level (Học viên chỉ thấy nhóm của mình, Admin thấy toàn bộ 8 nhóm) */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {GOAL_CASCADE_GROUPS.filter((_, idx) => {
-                if (isAdmin) return true;
+                if (isAdmin && !studentGroupNum) return true;
                 if (!studentGroupNum) return true;
                 return idx === studentGroupNum - 1;
               }).map((grpName) => {
