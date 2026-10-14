@@ -279,7 +279,7 @@ export default function AdminAssignmentsPage() {
                       try {
                         const parsed = JSON.parse(selectedSubmission.note || "{}");
 
-                        // Xử lý bài nộp Buổi 3: Bộ 3 Biểu mẫu Xử lý Chậm tiến độ
+                        // Xử lý bài nộp Buổi 2: Bộ 3 Biểu mẫu Xử lý Chậm tiến độ
                         if (parsed.type === "SESSION3_DELAY_WORKORDER") {
                           const sc = parsed.scenario || {};
                           const formA = parsed.part3_formA_workOrder || {};

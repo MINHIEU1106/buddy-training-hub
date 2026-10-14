@@ -80,18 +80,21 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // 2. Tìm bài nộp Buổi 3 của học viên (nếu đã nộp)
+    // 2. Tìm bài nộp Xử lý chậm tiến độ của học viên (nếu đã nộp)
     let session3Assignment: any = null;
     let session3Sub: any = null;
 
     if (student.course?.sessions) {
-      const s3 = student.course.sessions.find((s) => s.sessionNumber === 3);
-      if (s3) {
-        session3Assignment = s3.assignments.find(
+      for (const sess of student.course.sessions) {
+        const found = sess.assignments.find(
           (a) => a.title.includes("Cập nhật kết quả") || a.title.includes("chậm tiến độ")
         );
-        if (session3Assignment?.submissions?.length > 0) {
-          session3Sub = session3Assignment.submissions[0];
+        if (found) {
+          session3Assignment = found;
+          if (found.submissions?.length > 0) {
+            session3Sub = found.submissions[0];
+          }
+          break;
         }
       }
     }
@@ -225,20 +228,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Học viên không tồn tại" }, { status: 404 });
     }
 
-    // Tìm Assignment Buổi 3
+    // Tìm Assignment Xử lý chậm tiến độ
     let targetAssignmentId = assignmentId;
     if (!targetAssignmentId) {
-      const a3 = await prisma.assignment.findFirst({
+      const a = await prisma.assignment.findFirst({
         where: {
-          session: { sessionNumber: 3 },
           title: { contains: "chậm tiến độ" },
         },
       });
-      if (a3) targetAssignmentId = a3.id;
+      if (a) targetAssignmentId = a.id;
     }
 
     if (!targetAssignmentId) {
-      return NextResponse.json({ error: "Không tìm thấy bài tập Buổi 3 trong hệ thống" }, { status: 404 });
+      return NextResponse.json({ error: "Không tìm thấy bài tập Xử lý chậm tiến độ trong hệ thống" }, { status: 404 });
     }
 
     // Đếm phiên bản hiện tại

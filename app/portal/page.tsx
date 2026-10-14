@@ -289,12 +289,12 @@ export default function StudentPortalPage() {
               </Link>
             </div>
 
-            {/* Session 3 In-Class Practice Spotlight: Delay Handling & 3 Forms */}
+            {/* Session 2 In-Class Practice Spotlight: Delay Handling & 3 Forms */}
             <div className="bg-gradient-to-r from-emerald-950 via-teal-950 to-slate-900 border-2 border-emerald-500/80 p-5 rounded-xl shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] bg-emerald-400 text-slate-950 font-black px-2 py-0.5 rounded uppercase tracking-wider font-mono">
-                    THỰC HÀNH BUỔI 3
+                    THỰC HÀNH BUỔI 2
                   </span>
                   <span className="text-xs font-bold text-emerald-300">CẬP NHẬT TIẾN ĐỘ & XỬ LÝ CHẬM TIẾN ĐỘ</span>
                 </div>
@@ -302,15 +302,15 @@ export default function StudentPortalPage() {
                   Bộ 3 Biểu Mẫu: Phiếu 4 Rõ • Bảng Cam Kết • Xử Lý Chậm Tiến Độ
                 </h3>
                 <p className="text-xs text-emerald-100 max-w-2xl">
-                  Đối chiếu nhận xét của Giảng viên, cập nhật mức thực tế trong bảng chỉ tiêu và hoàn thiện phương án xử lý tình huống chậm tiến độ với cam kết thời hạn rõ ràng.
+                  Module 2 (Giao việc và kiểm soát tiến độ): Đối chiếu nhận xét của Giảng viên, cập nhật mức thực tế trong bảng chỉ tiêu và hoàn thiện phương án xử lý tình huống chậm tiến độ với cam kết thời hạn rõ ràng.
                 </p>
               </div>
 
               <Link
-                href={`/portal/session-3-practice?code=${studentData.studentCode}`}
+                href={`/portal/session-2-practice?code=${studentData.studentCode}`}
                 className="w-full md:w-auto text-center bg-emerald-400 hover:bg-emerald-300 text-slate-950 text-xs font-black uppercase tracking-wider px-5 py-3 rounded-lg shadow-lg transition transform hover:-translate-y-0.5 whitespace-nowrap font-mono"
               >
-                LÀM BÀI TẬP BUỔI 3 →
+                LÀM BÀI TẬP BUỔI 2 →
               </Link>
             </div>
 
@@ -543,12 +543,21 @@ export default function StudentPortalPage() {
                             {/* Action Submit / Resubmit */}
                             <div className="pt-2 flex flex-wrap justify-end gap-2">
                               {assign.type === "IN_SESSION" && (
-                                <Link
-                                  href="/portal/goal-cascade"
-                                  className="inline-block bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs uppercase tracking-wider py-2.5 px-4 rounded-lg whitespace-nowrap transition-colors shadow"
-                                >
-                                  VÀO LÀM BÀI TRÊN LỚP (8 NHÓM) →
-                                </Link>
+                                assign.title.toLowerCase().includes("chậm tiến độ") || sess.sessionNumber === 2 ? (
+                                  <Link
+                                    href={`/portal/session-2-practice?code=${studentData.studentCode}`}
+                                    className="inline-block bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs uppercase tracking-wider py-2.5 px-4 rounded-lg whitespace-nowrap transition-colors shadow font-mono"
+                                  >
+                                    LÀM BÀI XỬ LÝ CHẬM TIẾN ĐỘ (3 BIỂU MẪU) →
+                                  </Link>
+                                ) : (
+                                  <Link
+                                    href="/portal/goal-cascade"
+                                    className="inline-block bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs uppercase tracking-wider py-2.5 px-4 rounded-lg whitespace-nowrap transition-colors shadow"
+                                  >
+                                    VÀO LÀM BÀI TRÊN LỚP (8 NHÓM) →
+                                  </Link>
+                                )
                               )}
                               {assign.type === "POST_SESSION" && (
                                 <Link

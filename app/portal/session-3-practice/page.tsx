@@ -421,7 +421,7 @@ export default function Session3PracticePage() {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
         <div className="text-center font-mono text-sm text-slate-600">
-          ⏳ Đang kết nối bài tập thực hành Buổi 3...
+          ⏳ Đang kết nối bài tập thực hành...
         </div>
       </div>
     );
@@ -442,7 +442,7 @@ export default function Session3PracticePage() {
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-[10px] bg-amber-400 text-slate-950 font-black px-2 py-0.5 rounded tracking-wide uppercase font-mono">
-                  BUỔI 3 • THỰC HÀNH TẠI LỚP
+                  BUỔI 2 • THỰC HÀNH TẠI LỚP
                 </span>
                 <h1 className="text-sm sm:text-base font-bold tracking-tight">
                   Cập Nhật Kết Quả & Xử Lý Chậm Tiến Độ (3 Biểu Mẫu)
@@ -1354,7 +1354,7 @@ export default function Session3PracticePage() {
             disabled={isSubmitting}
             className="bg-amber-400 hover:bg-amber-300 disabled:bg-slate-700 text-slate-950 font-black text-sm uppercase px-8 py-3.5 rounded-xl shadow-lg transition transform hover:-translate-y-0.5 font-mono"
           >
-            {isSubmitting ? "Đang gửi dữ liệu lên máy chủ..." : "✓ NỘP BÀI THỰC HÀNH BUỔI 3 →"}
+            {isSubmitting ? "Đang gửi dữ liệu lên máy chủ..." : "✓ NỘP BÀI THỰC HÀNH BUỔI 2 (3 BIỂU MẪU) →"}
           </button>
         </div>
       </div>
