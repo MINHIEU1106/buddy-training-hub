@@ -537,16 +537,31 @@ export default function AdminGoalCascadePage() {
                   value={commentDraft}
                   onChange={(e) => setCommentDraft(e.target.value)}
                   placeholder="Nhập nhận xét cho nhóm..."
-                  className="w-full border border-slate-300 rounded p-2.5 text-xs focus:ring-1 focus:ring-[#00685E]"
+                  className="w-full bg-white text-slate-900 border border-slate-300 rounded p-2.5 text-xs focus:ring-2 focus:ring-[#00685E] focus:outline-none placeholder:text-slate-400 font-medium"
                 />
-                <div className="flex justify-end gap-2 pt-1">
-                  <button
-                    onClick={handleSaveComment}
-                    disabled={savingComment}
-                    className="bg-[#00685E] text-white px-4 py-2 rounded text-xs font-bold uppercase tracking-wider disabled:opacity-60"
-                  >
-                    {savingComment ? "Đang lưu..." : "Lưu Nhận Xét & Gửi Cho Nhóm"}
-                  </button>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pt-1">
+                  <div className="text-[11px] text-slate-500">
+                    💡 Sau khi lưu, học viên mở trang làm bài của nhóm sẽ thấy ngay thông báo nhận xét này.
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {active && (
+                      <Link
+                        href={`/portal/goal-cascade?code=${active.submittedByCode}`}
+                        target="_blank"
+                        className="text-xs font-bold text-teal-800 bg-teal-50 hover:bg-teal-100 border border-teal-200 px-3 py-2 rounded transition inline-flex items-center gap-1"
+                        title="Mở giao diện nhóm này dưới góc nhìn học viên để xem nhận xét"
+                      >
+                        👁 Xem trang học viên ↗
+                      </Link>
+                    )}
+                    <button
+                      onClick={handleSaveComment}
+                      disabled={savingComment}
+                      className="bg-[#00685E] hover:bg-teal-800 text-white px-4 py-2 rounded text-xs font-bold uppercase tracking-wider disabled:opacity-60 transition shadow"
+                    >
+                      {savingComment ? "Đang lưu..." : "Lưu Nhận Xét & Gửi Cho Nhóm"}
+                    </button>
+                  </div>
                 </div>
               </div>
             </>
