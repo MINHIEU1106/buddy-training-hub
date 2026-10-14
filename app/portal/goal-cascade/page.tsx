@@ -532,7 +532,7 @@ export default function GoalCascadeWorkspacePage() {
   };
 
   // Hàm tra cứu và thiết lập danh tính học viên
-  const applyStudentIdentity = async (rawCode: string) => {
+  const applyStudentIdentity = async (rawCode: string, hasExplicitGroupInUrl = false) => {
     let cleanCode = rawCode.trim().toUpperCase();
     if (!cleanCode) return;
     if (!cleanCode.startsWith("HV") && /^\d+$/.test(cleanCode)) {
@@ -552,9 +552,9 @@ export default function GoalCascadeWorkspacePage() {
           studentCode: data.student.studentCode,
           managerName: data.student.fullName || prev.managerName,
         }));
-        // Tự động chuyển về nhóm học viên được phân công
+        // Nếu URL chưa chỉ định group cụ thể thì chuyển sang nhóm của học viên này
         const dbGrp = getStudentGroupNumber(data.student.studentCode, data.student.groupNumber);
-        if (dbGrp && dbGrp >= 1 && dbGrp <= 8) {
+        if (dbGrp && dbGrp >= 1 && dbGrp <= 8 && !hasExplicitGroupInUrl) {
           setSelectedDeptIndex(dbGrp - 1);
         }
         setQuickInputCode("");
@@ -570,24 +570,27 @@ export default function GoalCascadeWorkspacePage() {
 
   // Check Admin & Mã học viên đăng nhập ở Cổng học viên / Check-in
   useEffect(() => {
+    let hasExplicitGroup = false;
     if (typeof window !== "undefined") {
       const urlParams = new URLSearchParams(window.location.search);
       const urlAdmin = urlParams.get("admin");
       const urlRole = urlParams.get("role");
       const urlGroup = urlParams.get("group");
       const urlGroupIndex = urlParams.get("groupIndex");
-      // CHỈ kích hoạt quyền Admin xem toàn bộ 8 nhóm khi có tham số ?admin=1 rõ ràng trên URL
+      // Kích hoạt quyền Admin xem toàn bộ 8 nhóm khi có tham số ?admin=1 rõ ràng trên URL
       if (urlAdmin === "1" || urlAdmin === "true" || urlRole === "admin") {
         setIsAdmin(true);
       }
       if (urlGroup) {
         const gNum = Number(urlGroup);
         if (gNum >= 1 && gNum <= 8) {
+          hasExplicitGroup = true;
           setSelectedDeptIndex(gNum - 1);
         }
       } else if (urlGroupIndex !== null && urlGroupIndex !== undefined) {
         const gIdx = Number(urlGroupIndex);
         if (gIdx >= 0 && gIdx <= 7) {
+          hasExplicitGroup = true;
           setSelectedDeptIndex(gIdx);
         }
       }
@@ -596,25 +599,20 @@ export default function GoalCascadeWorkspacePage() {
     const urlCode = new URLSearchParams(window.location.search).get("code");
     const saved = urlCode || localStorage.getItem("buddy_student_code") || "";
     if (saved) {
-      applyStudentIdentity(saved);
+      applyStudentIdentity(saved, hasExplicitGroup);
     }
   }, []);
 
-  // Nếu đã xác định mã học viên và không phải Admin đang chỉ định group xem bài, luôn tự động khóa cứng vào nhóm của học viên
+  // Nếu là học viên (không phải Admin) và đã xác định nhóm, luôn tự động khóa cứng vào nhóm của học viên
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.get("admin") === "1" || urlParams.get("group") || urlParams.get("groupIndex")) {
-        return;
-      }
-    }
+    if (isAdmin) return;
     if (studentGroupNum && studentGroupNum >= 1 && studentGroupNum <= 8) {
       const targetIdx = studentGroupNum - 1;
       if (selectedDeptIndex !== targetIdx) {
         setSelectedDeptIndex(targetIdx);
       }
     }
-  }, [studentGroupNum, selectedDeptIndex]);
+  }, [studentGroupNum, selectedDeptIndex, isAdmin]);
 
   // Tải thông tin bài nộp, bản nháp đã lưu & nhận xét của giảng viên cho nhóm đang chọn
   useEffect(() => {
@@ -914,7 +912,7 @@ export default function GoalCascadeWorkspacePage() {
         {/* Department / Group Selector Bar */}
         <div className="bg-white border border-slate-200 rounded-lg p-4 mb-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex flex-wrap items-center gap-3">
-            {isAdmin && !studentGroupNum ? (
+            {isAdmin ? (
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
@@ -947,7 +945,7 @@ export default function GoalCascadeWorkspacePage() {
                 </span>
                 <div className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-[#00685E] text-white font-bold text-xs shadow-sm border border-teal-700">
                   <span>🏛️</span>
-                  <span>{GOAL_CASCADE_GROUPS[studentGroupNum - 1]}</span>
+                  <span>{GOAL_CASCADE_GROUPS[selectedDeptIndex]}</span>
                   <span className="text-[10px] bg-amber-400 text-slate-950 font-black px-1.5 py-0.5 rounded font-mono uppercase ml-1">
                     Nhóm bàn của bạn
                   </span>
@@ -1607,7 +1605,7 @@ export default function GoalCascadeWorkspacePage() {
             {/* Level 2: Department Level (Học viên chỉ thấy nhóm của mình, Admin thấy toàn bộ 8 nhóm) */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {GOAL_CASCADE_GROUPS.filter((_, idx) => {
-                if (isAdmin && !studentGroupNum) return true;
+                if (isAdmin) return true;
                 if (!studentGroupNum) return true;
                 return idx === studentGroupNum - 1;
               }).map((grpName) => {
