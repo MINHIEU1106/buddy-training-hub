@@ -278,6 +278,120 @@ export default function AdminAssignmentsPage() {
                     {(() => {
                       try {
                         const parsed = JSON.parse(selectedSubmission.note || "{}");
+
+                        // Xử lý bài nộp Buổi 3: Bộ 3 Biểu mẫu Xử lý Chậm tiến độ
+                        if (parsed.type === "SESSION3_DELAY_WORKORDER") {
+                          const sc = parsed.scenario || {};
+                          const formA = parsed.part3_formA_workOrder || {};
+                          const formB = parsed.part3_formB_commitments || [];
+                          const formC = parsed.part3_formC_delayHandling || {};
+                          const staff = parsed.part3_staffFeedback || {};
+
+                          return (
+                            <div className="space-y-4 bg-slate-900 p-3.5 rounded-lg border border-slate-800 text-[11px]">
+                              {/* Tình huống tóm tắt */}
+                              <div className="p-2.5 rounded bg-amber-950/40 border border-amber-800/60 text-amber-200">
+                                <div className="font-bold text-[10px] uppercase text-amber-400">
+                                  TÌNH HUỐNG: {sc.title || sc.indicator}
+                                </div>
+                                <div className="text-[10px] mt-1 text-slate-300">
+                                  Mục tiêu: <strong>{sc.targetQuantity} {sc.unit}</strong> | Định mức: <strong>{sc.dailyQuota} {sc.unit}/ngày</strong> | Thực tế: <strong className="text-rose-400">{sc.actualQuantity} {sc.unit} (Thiếu {sc.missingQuantity})</strong>
+                                </div>
+                              </div>
+
+                              {/* Gợi ý Checklist chấm cho Giảng viên (Không tính điểm tự động) */}
+                              <div className="p-3 bg-teal-950/50 border border-teal-800 rounded text-teal-200 space-y-1">
+                                <div className="text-[10px] font-bold uppercase text-teal-300">
+                                  📋 CHECKLIST THAM KHẢO CHO GIẢNG VIÊN (TIÊU CHÍ ĐẠT):
+                                </div>
+                                <div className="space-y-0.5 text-[10px] text-slate-300">
+                                  <div>☑ <strong>Xác định đúng vấn đề:</strong> Nêu rõ việc chậm và tác động định lượng</div>
+                                  <div>☑ <strong>Cách trao đổi:</strong> Dựa trên dữ kiện thực tế, không quy chụp con người</div>
+                                  <div>☑ <strong>Phương án hành động:</strong> Việc cụ thể, đúng 1 người phụ trách, có thời hạn</div>
+                                  <div>☑ <strong>Cam kết & Mốc kiểm tra:</strong> Có thời điểm kiểm tra lại và giải pháp phòng ngừa</div>
+                                </div>
+                              </div>
+
+                              {/* Mẫu A */}
+                              <div className="space-y-1">
+                                <div className="text-teal-400 font-bold uppercase tracking-wider text-[10px]">
+                                  MẪU A: PHIẾU GIAO VIỆC 4 RÕ
+                                </div>
+                                <div className="bg-slate-950 p-2.5 rounded border border-slate-800 space-y-1">
+                                  <div><strong>Nhiệm vụ:</strong> <span className="text-white">{formA.taskName || "—"}</span></div>
+                                  <div><strong>Người phụ trách (Who):</strong> <span className="text-emerald-400 font-bold">{formA.assignee || "—"}</span></div>
+                                  <div><strong>Kết quả bàn giao:</strong> <span className="text-slate-300">{formA.deliverables || "—"}</span></div>
+                                  <div><strong>Hạn hoàn thành:</strong> <span className="text-amber-400 font-mono">{formA.deadline || "—"}</span></div>
+                                  <div><strong>Mốc kiểm tra:</strong> <span className="text-slate-300">{formA.checkpoints || "—"}</span></div>
+                                  <div><strong>Tiêu chuẩn:</strong> <span className="text-slate-300">{formA.standards || "—"}</span></div>
+                                </div>
+                              </div>
+
+                              {/* Mẫu B */}
+                              <div className="space-y-1">
+                                <div className="text-blue-400 font-bold uppercase tracking-wider text-[10px]">
+                                  MẪU B: BẢNG CAM KẾT TIẾN ĐỘ ({formB.length} DÒNG)
+                                </div>
+                                <div className="space-y-1">
+                                  {formB.map((r: any, idx: number) => (
+                                    <div key={idx} className="bg-slate-950 p-2 rounded border border-slate-800 flex flex-col gap-0.5">
+                                      <div className="flex justify-between font-semibold text-white">
+                                        <span>#{idx + 1}. {r.task}</span>
+                                        <span className={`text-[9px] px-1.5 py-0.2 rounded font-bold ${
+                                          r.status === "Đã chậm" ? "bg-rose-950 text-rose-300 border border-rose-800" : "bg-emerald-950 text-emerald-300"
+                                        }`}>{r.status}</span>
+                                      </div>
+                                      <div className="text-slate-400 text-[10px]">
+                                        Phụ trách: <strong className="text-slate-300">{r.assignee}</strong> | Hạn: <strong className="text-slate-300 font-mono">{r.deadline}</strong> | Mốc cập nhật: <strong>{r.updateCheckpoint || "—"}</strong>
+                                      </div>
+                                      <div className="text-slate-300 text-[10px]">Hành động tiếp theo: {r.nextAction || "—"}</div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+
+                              {/* Mẫu C */}
+                              <div className="space-y-1">
+                                <div className="text-rose-400 font-bold uppercase tracking-wider text-[10px]">
+                                  MẪU C: PHIẾU XỬ LÝ CHẬM TIẾN ĐỘ (SẢN PHẨM NỘP CHÍNH)
+                                </div>
+                                <div className="bg-slate-950 p-2.5 rounded border border-slate-800 space-y-1.5">
+                                  <div><strong>Vấn đề:</strong> <span className="text-white">{formC.issueDescription || "—"}</span></div>
+                                  <div><strong>Nguyên nhân & vướng mắc:</strong> <span className="text-slate-300">{formC.rootCause || "—"}</span></div>
+                                  <div>
+                                    <strong>Hành động thực hiện ngay ({formC.immediateActions?.length || 0}):</strong>
+                                    <ul className="list-disc pl-4 text-slate-300 space-y-0.5 mt-0.5">
+                                      {formC.immediateActions?.map((act: any, i: number) => (
+                                        <li key={i}>{act.action} — <strong className="text-emerald-400">{act.who}</strong> ({act.deadline})</li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                  <div className="p-1.5 bg-rose-950/40 rounded border border-rose-900 text-rose-200">
+                                    ⏰ <strong>Thời điểm kiểm tra lại (Check lại):</strong> <span className="font-mono font-bold text-white">{formC.recheckTime || "Chưa có"}</span>
+                                  </div>
+                                  <div><strong>Giải pháp phòng ngừa:</strong> <span className="text-slate-300">{formC.preventiveMeasures || "—"}</span></div>
+                                </div>
+                              </div>
+
+                              {/* Trao đổi nhân viên 4 bước nếu có */}
+                              {staff.step1_stateFacts && (
+                                <div className="space-y-1 pt-1 border-t border-slate-800">
+                                  <div className="text-purple-400 font-bold uppercase text-[10px]">
+                                    KỊCH BẢN TRAO ĐỔI VỚI NHÂN VIÊN (4 BƯỚC)
+                                  </div>
+                                  <div className="bg-slate-950 p-2 rounded border border-slate-800 space-y-0.5 text-slate-300 text-[10px]">
+                                    <div>1. Thực tế: {staff.step1_stateFacts}</div>
+                                    <div>2. Nguyên nhân: {staff.step2_clarifyCause}</div>
+                                    <div>3. Hành động: {staff.step3_agreeAction}</div>
+                                    <div>4. Cam kết: {staff.step4_lockCommitment}</div>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        }
+
+                        // Mặc định: BTVN Kế hoạch cá nhân Buổi 1
                         return (
                           <div className="space-y-3 bg-slate-900 p-3 rounded-lg border border-slate-800 text-[11px]">
                             <div>

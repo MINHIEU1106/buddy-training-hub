@@ -713,6 +713,68 @@ export default function ReportsClient({
                   {(() => {
                     try {
                       const parsed = JSON.parse(selectedSubmission.sub.note || "{}");
+                      if (parsed.type === "SESSION3_DELAY_WORKORDER") {
+                        return (
+                          <div className="space-y-3 bg-slate-900 p-3 rounded-lg border border-slate-800 text-[11px] mt-2">
+                            {/* Tình huống */}
+                            <div className="bg-slate-950 p-2.5 rounded border border-amber-900/40">
+                              <div className="text-amber-400 font-bold uppercase tracking-wider text-[10px] mb-1">
+                                📌 TÌNH HUỐNG CHẬM TIẾN ĐỘ
+                              </div>
+                              <div className="text-white font-medium">
+                                {parsed.scenario?.indicator || "Chỉ tiêu"} • Mục tiêu: {parsed.scenario?.target} {parsed.scenario?.unit}
+                              </div>
+                              <div className="text-slate-400 text-[10px] mt-0.5">
+                                Thực tế: <span className="text-rose-400 font-bold">{parsed.scenario?.actual}</span> | Thiếu: <span className="text-rose-400 font-bold">{parsed.scenario?.missing}</span> | Phụ trách: {parsed.scenario?.assignee} | Hạn: {parsed.scenario?.deadline}
+                              </div>
+                            </div>
+
+                            {/* Mẫu A */}
+                            <div>
+                              <div className="text-teal-400 font-bold uppercase tracking-wider text-[10px]">
+                                MẪU A: PHIẾU GIAO VIỆC 4 RÕ
+                              </div>
+                              <div className="bg-slate-950 p-2 rounded border border-slate-800 mt-1 space-y-1">
+                                <div><strong className="text-slate-300">Nhiệm vụ:</strong> {parsed.workOrder?.taskName}</div>
+                                <div><strong className="text-slate-300">Kết quả bàn giao:</strong> {parsed.workOrder?.deliverable}</div>
+                                <div><strong className="text-slate-300">Tiêu chuẩn:</strong> {parsed.workOrder?.standards}</div>
+                                <div><strong className="text-slate-300">Thời hạn:</strong> {parsed.workOrder?.deadline} | <strong className="text-slate-300">Cập nhật:</strong> {parsed.workOrder?.checkpoints}</div>
+                              </div>
+                            </div>
+
+                            {/* Mẫu B */}
+                            <div>
+                              <div className="text-blue-400 font-bold uppercase tracking-wider text-[10px]">
+                                MẪU B: BẢNG CAM KẾT TIẾN ĐỘ ({parsed.commitments?.length || 0} dòng)
+                              </div>
+                              <div className="space-y-1 mt-1">
+                                {parsed.commitments?.map((c: any, cIdx: number) => (
+                                  <div key={cIdx} className="bg-slate-950 p-1.5 rounded border border-slate-800 flex justify-between items-center text-[10px]">
+                                    <span className="font-semibold text-white">#{cIdx + 1} {c.task} ({c.assignee})</span>
+                                    <span className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-mono">
+                                      {c.status} • {c.deadline}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+
+                            {/* Mẫu C */}
+                            <div>
+                              <div className="text-rose-400 font-bold uppercase tracking-wider text-[10px]">
+                                MẪU C: PHIẾU XỬ LÝ CHẬM TIẾN ĐỘ
+                              </div>
+                              <div className="bg-slate-950 p-2 rounded border border-slate-800 mt-1 space-y-1">
+                                <div><strong className="text-slate-300">Vấn đề:</strong> {parsed.delayHandling?.problem}</div>
+                                <div><strong className="text-slate-300">Nguyên nhân:</strong> {parsed.delayHandling?.rootCause}</div>
+                                <div><strong className="text-slate-300">Mốc kiểm tra lại:</strong> <span className="text-amber-300 font-mono font-bold">{parsed.delayHandling?.reviewTime}</span></div>
+                                <div><strong className="text-slate-300">Phòng ngừa:</strong> {parsed.delayHandling?.prevention}</div>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      }
+
                       return (
                         <div className="space-y-3 bg-slate-900 p-3 rounded-lg border border-slate-800 text-[11px] mt-2">
                           <div>

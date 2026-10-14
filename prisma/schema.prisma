@@ -175,3 +175,27 @@ model GoalCascadePlan {
   comment         String?  // Nhận xét của giảng viên
   updatedAt       DateTime @updatedAt
 }
+
+// Cấu hình tình huống chậm tiến độ Buổi 3 (Admin cấu hình kịch bản mẫu)
+model Session3DelayCase {
+  id                String   @id @default(cuid())
+  title             String   // Tiêu đề tình huống (VD: Phòng CSKH - Khảo sát mức độ hài lòng)
+  department        String   // Phòng ban áp dụng (VD: Phòng Chăm sóc khách hàng)
+  indicator         String   // Chỉ tiêu (VD: Khảo sát mức độ hài lòng của người bệnh)
+  targetQuantity    Float    // Mục tiêu tổng (VD: 300)
+  unit              String   // Đơn vị tính (VD: người bệnh / cuộc gọi)
+  workingDays       Int      // Số ngày làm việc tới deadline (VD: 10)
+  dailyQuota        Float    // Định mức mỗi ngày (VD: 30)
+  assigneeName      String   // Người phụ trách (VD: Điều dưỡng A)
+  deadline          String   // Deadline (VD: 25/10/2027)
+  actualQuantity    Float    // Thực tế đạt được tại ngày deadline (VD: 210)
+  missingQuantity   Float    // Số lượng thiếu (VD: 90)
+  completionRate    Float    // % hoàn thành (VD: 70)
+  context           String?  // Bối cảnh mô tả chi tiết
+  questionPrompt    String   // Câu hỏi gợi ý xử lý
+  instructorNote    String?  // Ghi chú cho giảng viên khi nhận xét
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+

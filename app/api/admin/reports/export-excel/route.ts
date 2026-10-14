@@ -279,8 +279,18 @@ export async function GET(req: NextRequest) {
           st.department || "",
           latestSub ? (latestSub.isLate ? "Nộp trễ" : "Đã nộp") : "Chưa nộp",
           latestSub ? new Date(latestSub.submittedAt).toLocaleString("vi-VN") : "",
-          latestSub ? (latestSub.type === "LINK" ? "Link Docs/Drive" : "File upload") : "",
-          latestSub ? latestSub.contentUrl || latestSub.fileName || "" : "",
+          latestSub
+            ? latestSub.type === "LINK"
+              ? "Link Docs/Drive"
+              : latestSub.type === "ONLINE_FORM"
+              ? "Biểu mẫu trực tuyến"
+              : "File upload"
+            : "",
+          latestSub
+            ? latestSub.type === "ONLINE_FORM"
+              ? "Đã lưu dữ liệu biểu mẫu trực tuyến"
+              : latestSub.contentUrl || latestSub.fileName || ""
+            : "",
           gradeText,
           latestRev ? latestRev.publicComment || "" : "",
         ];
