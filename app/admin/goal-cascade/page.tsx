@@ -131,6 +131,12 @@ export default function AdminGoalCascadePage() {
           >
             Mở Workspace Học Viên ↗
           </Link>
+          <Link
+            href="/admin/session-2-practice"
+            className="text-xs font-bold bg-[#00685E] text-white px-3.5 py-2 rounded hover:bg-teal-800 transition shadow"
+          >
+            Thực Hành Buổi 2 →
+          </Link>
         </div>
       </div>
 
