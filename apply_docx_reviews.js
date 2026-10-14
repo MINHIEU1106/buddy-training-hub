@@ -154,26 +154,7 @@ async function main() {
       });
       console.log(`Updated group ${item.groupIndex + 1}: ${item.groupName} (Score: ${item.score})`);
     } else {
-      // Create record if not exists (e.g. Group 5)
-      await prisma.goalCascadePlan.create({
-        data: {
-          groupIndex: item.groupIndex,
-          groupName: item.groupName,
-          score: item.score,
-          comment: item.comment,
-          submittedByCode: "SYSTEM",
-          submittedByName: "Hệ thống đào tạo",
-          data: {
-            plan: {
-              step1_goal: "",
-              step2_results: [],
-              step3_6_works: [],
-            },
-            checks: [],
-          },
-        },
-      });
-      console.log(`Created group ${item.groupIndex + 1}: ${item.groupName}`);
+      console.log(`Skipped group ${item.groupIndex + 1}: ${item.groupName} (Chưa nộp bài)`);
     }
   }
 
