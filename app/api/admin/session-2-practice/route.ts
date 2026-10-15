@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getStudentGroupNumber, getStudentGroupName, SESSION_2_GROUPS } from "@/lib/goal-cascade-groups";
+import { getStudentGroupNumber, getStudentGroupName, GOAL_CASCADE_GROUPS } from "@/lib/goal-cascade-groups";
 
 export const dynamic = "force-dynamic";
 
@@ -129,7 +129,7 @@ export async function GET(req: NextRequest) {
         excellentCount,
         needsFixCount,
       },
-      groups: SESSION_2_GROUPS,
+      groups: GOAL_CASCADE_GROUPS,
       students: mappedStudents,
     });
   } catch (error: any) {

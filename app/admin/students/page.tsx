@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { SESSION_2_GROUPS as GOAL_CASCADE_GROUPS, getStudentGroupNumber, getStudentGroupName } from "@/lib/goal-cascade-groups";
+import { GOAL_CASCADE_GROUPS, getStudentGroupNumber, getStudentGroupName } from "@/lib/goal-cascade-groups";
 
 export default function StudentManagementPage() {
   const [students, setStudents] = useState<any[]>([]);
@@ -230,13 +230,13 @@ export default function StudentManagementPage() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-900 border border-slate-800 p-6 rounded-xl">
         <div>
           <span className="text-xs uppercase font-bold tracking-widest text-emerald-400">
-            QUẢN TRỊ DANH SÁCH & PHÂN CHIA 11 NHÓM
+            QUẢN TRỊ DANH SÁCH & PHÂN CHIA 8 NHÓM
           </span>
           <h1 className="text-2xl font-bold text-white mt-1">
             DANH SÁCH HỌC VIÊN & MÃ ĐỊNH DANH
           </h1>
           <p className="text-xs text-slate-400 mt-1">
-            Tổng cộng: <span className="text-white font-bold font-code">{students.length}</span> học viên chia thành <span className="text-emerald-400 font-bold">11 nhóm thực hành</span>
+            Tổng cộng: <span className="text-white font-bold font-code">{students.length}</span> học viên chia thành <span className="text-emerald-400 font-bold">8 nhóm thực hành</span>
           </p>
         </div>
 
@@ -329,16 +329,16 @@ export default function StudentManagementPage() {
           </div>
         </div>
 
-        {/* 11 Groups Filter Bar */}
+        {/* 8 Groups Filter Bar */}
         <div className="pt-3 border-t border-slate-800 flex items-center gap-2 flex-wrap">
-          <span className="text-[11px] font-bold uppercase text-slate-400 whitespace-nowrap">LỌC THEO 11 NHÓM:</span>
+          <span className="text-[11px] font-bold uppercase text-slate-400 whitespace-nowrap">LỌC THEO 8 NHÓM:</span>
           <button
             onClick={() => setFilterGroup("ALL")}
             className={`text-[11px] font-bold px-2.5 py-1 rounded-md transition-colors ${
               filterGroup === "ALL" ? "bg-blue-600 text-white" : "bg-slate-950 text-slate-400 hover:text-white"
             }`}
           >
-            Tất cả 11 nhóm
+            Tất cả 8 nhóm
           </button>
           {GOAL_CASCADE_GROUPS.map((grpLabel, idx) => {
             const gNum = idx + 1;

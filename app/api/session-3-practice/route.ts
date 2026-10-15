@@ -1,13 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { normalizeCode } from "@/lib/code-generator";
-import {
-  getStudentGroupNumber,
-  getStudentGroupName,
-  GOAL_CASCADE_GROUPS,
-  getSession1StudentGroup,
-  getSession1GroupName,
-} from "@/lib/goal-cascade-groups";
+import { getStudentGroupNumber, getStudentGroupName, GOAL_CASCADE_GROUPS } from "@/lib/goal-cascade-groups";
 
 export const dynamic = "force-dynamic";
 
@@ -59,18 +53,14 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Học viên không tồn tại" }, { status: 404 });
     }
 
-    // 0. Xác định nhóm Buổi 2 hiện tại và nhóm Buổi 1 nguyên bản của học viên:
+    // 0. Xác định nhóm của học viên:
     const studentGroupNum = getStudentGroupNumber(student.studentCode, student.groupNumber);
     const studentGroupName = getStudentGroupName(student.studentCode, student.groupNumber);
 
-    // Học viên tham gia bài thực hành Buổi 1 theo nhóm nguyên bản nào (8 nhóm gốc):
-    const session1GroupNum = getSession1StudentGroup(student.studentCode);
-    const session1GroupName = getSession1GroupName(student.studentCode);
-
     let groupPlan: any = null;
-    if (session1GroupNum >= 1 && session1GroupNum <= 8) {
+    if (studentGroupNum && studentGroupNum >= 1 && studentGroupNum <= GOAL_CASCADE_GROUPS.length) {
       groupPlan = await prisma.goalCascadePlan.findUnique({
-        where: { groupIndex: session1GroupNum - 1 },
+        where: { groupIndex: studentGroupNum - 1 },
       });
     }
 

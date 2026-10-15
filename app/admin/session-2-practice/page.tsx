@@ -348,7 +348,7 @@ export default function AdminSession2PracticePage() {
                 onChange={(e) => setSelectedGroupFilter(e.target.value === "ALL" ? "ALL" : Number(e.target.value))}
                 className="w-full border border-slate-300 rounded px-2 py-1.5 text-xs text-slate-800 bg-white"
               >
-                <option value="ALL">Tất cả 11 Nhóm khoa/phòng</option>
+                <option value="ALL">Tất cả 8 Nhóm khoa/phòng</option>
                 {groups.map((g, idx) => (
                   <option key={idx} value={idx + 1}>
                     Nhóm {idx + 1}
