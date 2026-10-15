@@ -121,22 +121,42 @@ export async function POST(req: NextRequest) {
     const now = new Date();
     const isLate = assignment.deadline ? now.getTime() > new Date(assignment.deadline).getTime() : false;
 
-    const submission = await prisma.submission.create({
-      data: {
-        assignmentId: assignment.id,
-        studentId: student.id,
-        version: nextVersion,
-        type: type,
-        contentUrl: finalUrl,
-        filePath: filePath,
-        fileName: fileName,
-        fileSize: fileSize,
-        note: note ? note.trim() : null,
-        isLate: isLate,
-        status: "SUBMITTED",
-        submittedAt: now,
-      },
-    });
+    // Cập nhật lại bản nộp hiện có của học viên (mỗi học viên chỉ có 1 dòng duy nhất trên hệ thống)
+    let submission;
+    if (previousSubmissions.length > 0) {
+      submission = await prisma.submission.update({
+        where: { id: previousSubmissions[0].id },
+        data: {
+          version: nextVersion,
+          type: type,
+          contentUrl: finalUrl,
+          filePath: filePath,
+          fileName: fileName,
+          fileSize: fileSize,
+          note: note ? note.trim() : null,
+          isLate: isLate,
+          status: "SUBMITTED",
+          submittedAt: now,
+        },
+      });
+    } else {
+      submission = await prisma.submission.create({
+        data: {
+          assignmentId: assignment.id,
+          studentId: student.id,
+          version: 1,
+          type: type,
+          contentUrl: finalUrl,
+          filePath: filePath,
+          fileName: fileName,
+          fileSize: fileSize,
+          note: note ? note.trim() : null,
+          isLate: isLate,
+          status: "SUBMITTED",
+          submittedAt: now,
+        },
+      });
+    }
 
     return NextResponse.json({
       success: true,

@@ -64,7 +64,7 @@ export default function AdminSession2PracticePage() {
   // QR Modal State
   const [showQrModal, setShowQrModal] = useState<boolean>(false);
   const [qrDataUrl, setQrDataUrl] = useState<string>("");
-  const [baseOrigin, setBaseOrigin] = useState<string>("https://buddytrain.netlify.app");
+  const [baseOrigin, setBaseOrigin] = useState<string>("https://buddy-training-hub.vercel.app");
 
   // Quick feedback templates
   const quickTemplates = [

@@ -45,7 +45,7 @@ export async function GET(
     // Generate QR code link
     const host = req.headers.get("x-forwarded-host") || req.headers.get("host");
     const proto = req.headers.get("x-forwarded-proto") || "https";
-    const origin = req.headers.get("origin") || (host ? `${proto}://${host}` : (req.nextUrl.origin || "https://buddytrain.netlify.app"));
+    const origin = req.headers.get("origin") || (host ? `${proto}://${host}` : (req.nextUrl.origin || "https://buddy-training-hub.vercel.app"));
     const checkinUrl = `${origin}/checkin?session=${session.sessionCode}`;
     const checkoutUrl = `${origin}/checkout?session=${session.sessionCode}`;
 

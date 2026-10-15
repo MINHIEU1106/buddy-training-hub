@@ -20,9 +20,10 @@ export default function AdminSessionsPage() {
 
   const openAssignmentQr = async (assign: any) => {
     const isInSession = assign.type === "IN_SESSION";
+    const origin = typeof window !== "undefined" ? window.location.origin : "https://buddy-training-hub.vercel.app";
     const targetUrl = isInSession
-      ? "https://buddytrain.netlify.app/portal/goal-cascade"
-      : "https://buddytrain.netlify.app/portal/homework-plan";
+      ? `${origin}/portal/goal-cascade`
+      : `${origin}/portal/homework-plan`;
     try {
       const dataUrl = await QRCode.toDataURL(targetUrl, {
         width: 520,

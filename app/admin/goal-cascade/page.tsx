@@ -36,7 +36,7 @@ export default function AdminGoalCascadePage() {
   const [showQrModal, setShowQrModal] = useState<boolean>(false);
   const [qrMode, setQrMode] = useState<"IN_CLASS" | "HOMEWORK">("IN_CLASS");
   const [qrDataUrl, setQrDataUrl] = useState<string>("");
-  const [baseOrigin, setBaseOrigin] = useState("https://buddytrain.netlify.app");
+  const [baseOrigin, setBaseOrigin] = useState("https://buddy-training-hub.vercel.app");
 
   useEffect(() => {
     if (typeof window !== "undefined") {

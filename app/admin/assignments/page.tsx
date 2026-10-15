@@ -126,7 +126,22 @@ export default function AdminAssignmentsPage() {
               Chưa có bài tập nào.
             </div>
           ) : (
-            assignments.map((assign) => (
+            assignments.map((assign) => {
+              // Deduplicate submissions by studentId: keep highest version and most recent submission
+              const uniqueSubmissions = (() => {
+                const map = new Map<string, any>();
+                const sorted = [...(assign.submissions || [])].sort(
+                  (a: any, b: any) =>
+                    (b.version || 0) - (a.version || 0) ||
+                    new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()
+                );
+                for (const s of sorted) {
+                  if (!map.has(s.studentId)) map.set(s.studentId, s);
+                }
+                return Array.from(map.values());
+              })();
+
+              return (
               <div
                 key={assign.id}
                 className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-xl space-y-4"
@@ -153,18 +168,18 @@ export default function AdminAssignmentsPage() {
                     {assign.title}
                   </h3>
                   <div className="text-xs text-slate-400 mt-1">
-                    Tổng số bài nộp: <span className="font-bold text-emerald-400 font-code">{assign.submissions.length}</span>
+                    Tổng số bài nộp: <span className="font-bold text-emerald-400 font-code">{uniqueSubmissions.length}</span>
                   </div>
                 </div>
 
                 {/* Submissions List */}
                 <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
-                  {assign.submissions.length === 0 ? (
+                  {uniqueSubmissions.length === 0 ? (
                     <div className="text-xs text-slate-500 py-3 text-center">
                       Chưa có học viên nào nộp bài tập này.
                     </div>
                   ) : (
-                    assign.submissions.map((sub: any) => {
+                    uniqueSubmissions.map((sub: any) => {
                       const isSelected = selectedSubmission?.id === sub.id;
                       const hasReview = sub.reviews?.length > 0;
                       const latestReview = sub.reviews?.[sub.reviews.length - 1];
@@ -219,7 +234,8 @@ export default function AdminAssignmentsPage() {
                   )}
                 </div>
               </div>
-            ))
+            );
+            })
           )}
         </div>
 

@@ -19,6 +19,13 @@ export default function ProjectorLiveBoardPage() {
   const [selectedStudentId, setSelectedStudentId] = useState("");
   const [manualNote, setManualNote] = useState("Học viên quên mang điện thoại");
   const [manualStatus, setManualStatus] = useState("ON_TIME");
+  const [currentHost, setCurrentHost] = useState("buddy-training-hub.vercel.app");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setCurrentHost(window.location.host);
+    }
+  }, []);
 
   // Fetch live board data
   const fetchLiveStatus = async () => {
@@ -205,7 +212,7 @@ export default function ProjectorLiveBoardPage() {
           <div className="w-full bg-slate-950 p-4 rounded-xl border border-slate-800 text-xs space-y-1">
             <div className="text-slate-400">Không quét được camera? Truy cập trình duyệt:</div>
             <div className="font-code font-bold text-emerald-400 text-sm">
-              {session.checkOutStatus === "OPEN" ? "buddytrain.netlify.app/checkout" : "buddytrain.netlify.app/checkin"}
+              {session.checkOutStatus === "OPEN" ? `${currentHost}/checkout` : `${currentHost}/checkin`}
             </div>
             <div className="text-slate-400 pt-1">
               Mã buổi học nhập tay: <span className="font-code font-bold text-white text-sm bg-slate-800 px-2 py-0.5 rounded">{session.sessionCode}</span>
