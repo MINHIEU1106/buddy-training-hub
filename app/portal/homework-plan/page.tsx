@@ -248,6 +248,7 @@ export default function HomeworkPlanWorkspacePage() {
   const [isTimerRunning, setIsTimerRunning] = useState<boolean>(true);
   const [teacherComment, setTeacherComment] = useState<string>("");
   const [hasSubmitted, setHasSubmitted] = useState<boolean>(false);
+  const [isAdminView, setIsAdminView] = useState<boolean>(false);
   const [submittedScore, setSubmittedScore] = useState<number>(0);
   const [allGroupPlans, setAllGroupPlans] = useState<any[]>([]);
   const isTimeOver = activeTimer <= 0;
@@ -496,9 +497,15 @@ export default function HomeworkPlanWorkspacePage() {
             for (const assign of sess.assignments || []) {
               const isHomework = assign.type === "POST_SESSION" || assign.title?.includes("BTVN");
               if (isHomework && assign.submissions && assign.submissions.length > 0) {
-                const latestSub = assign.submissions[0];
+                // Sắp xếp lấy bản nộp mới nhất theo version hoặc submittedAt
+                const sortedSubs = [...assign.submissions].sort(
+                  (a: any, b: any) =>
+                    (b.version || 0) - (a.version || 0) ||
+                    new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()
+                );
+                const latestSub = sortedSubs[0];
                 if (latestSub.reviews && latestSub.reviews.length > 0) {
-                  foundReview = latestSub.reviews[0];
+                  foundReview = latestSub.reviews[latestSub.reviews.length - 1];
                 }
                 if (latestSub.note) {
                   try {
@@ -525,8 +532,19 @@ export default function HomeworkPlanWorkspacePage() {
             ...foundSubmittedPlan,
             studentCode: data.student.studentCode,
             managerName: data.student.fullName || foundSubmittedPlan.managerName || prev.managerName,
-            department: data.student.department || foundSubmittedPlan.department || prev.department,
+            department: foundSubmittedPlan.department || data.student.department || prev.department,
           }));
+
+          // Đồng bộ tab Khoa/Phòng theo nội dung bài đã nộp nếu có
+          if (foundSubmittedPlan.department) {
+            const matchedIdx = SAMPLE_DEPARTMENTS.findIndex(
+              (d) => d.name === foundSubmittedPlan.department || foundSubmittedPlan.department.includes(d.name)
+            );
+            if (matchedIdx !== -1) {
+              setSelectedDeptIndex(matchedIdx);
+            }
+          }
+
           try {
             localStorage.setItem(
               `homework_plan_draft_${data.student.studentCode}`,
@@ -576,7 +594,12 @@ export default function HomeworkPlanWorkspacePage() {
 
   // Mã học viên và thông tin cá nhân đăng nhập ở Cổng học viên / Check-in
   useEffect(() => {
-    const searchCode = new URLSearchParams(window.location.search).get("code");
+    const params = new URLSearchParams(window.location.search);
+    const searchCode = params.get("code");
+    const adminParam = params.get("admin") === "1";
+    if (adminParam) {
+      setIsAdminView(true);
+    }
     const saved = searchCode || localStorage.getItem("buddy_student_code") || "";
     if (saved) {
       applyStudentIdentity(saved);
@@ -591,8 +614,9 @@ export default function HomeworkPlanWorkspacePage() {
     }
   }, []);
 
-  // Tự động lưu nháp mỗi khi học viên thay đổi nội dung (Autosave sau 1 giây)
+  // Tự động lưu nháp mỗi khi học viên thay đổi nội dung (Không tự lưu khi admin xem bài)
   useEffect(() => {
+    if (isAdminView) return;
     const studentCode = plan.studentCode || localStorage.getItem("buddy_student_code") || "personal";
     const draftKey = `homework_plan_draft_${studentCode}`;
     const timer = setTimeout(() => {
@@ -604,7 +628,7 @@ export default function HomeworkPlanWorkspacePage() {
       }
     }, 1000);
     return () => clearTimeout(timer);
-  }, [plan]);
+  }, [plan, isAdminView]);
 
   // Submit plan to API: Lưu vào bài nộp cá nhân của học viên
   const handleSubmitPlan = async () => {
@@ -686,15 +710,33 @@ export default function HomeworkPlanWorkspacePage() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 pb-16 font-sans">
+      {/* Admin Notice Banner */}
+      {isAdminView && (
+        <div className="bg-amber-400 text-slate-950 px-4 sm:px-6 py-2.5 text-xs font-bold flex items-center justify-between border-b border-amber-500 shadow-sm sticky top-0 z-40">
+          <div className="flex items-center gap-2">
+            <span className="text-base">👁️</span>
+            <span>
+              CHẾ ĐỘ GIẢNG VIÊN XEM BÀI NỘP CỦA HỌC VIÊN: <strong className="underline">{currentStudent?.fullName || plan.managerName}</strong> ({currentStudent?.studentCode || plan.studentCode})
+            </span>
+          </div>
+          <Link
+            href="/admin/assignments"
+            className="bg-slate-900 text-white px-3 py-1 rounded text-[11px] uppercase tracking-wider hover:bg-slate-800 font-bold transition shadow-sm whitespace-nowrap"
+          >
+            ← Về Studio Chấm Bài
+          </Link>
+        </div>
+      )}
+
       {/* Top Banner */}
-      <div className="bg-[#00685E] text-white border-b border-teal-800 sticky top-0 z-30 shadow-md">
+      <div className={`bg-[#00685E] text-white border-b border-teal-800 z-30 shadow-md ${isAdminView ? "" : "sticky top-0"}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-col md:flex-row md:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <Link
-              href="/portal"
+              href={isAdminView ? "/admin/assignments" : "/portal"}
               className="text-xs uppercase font-bold tracking-wider px-2.5 py-1 bg-teal-800 hover:bg-teal-700 text-teal-100 rounded transition border border-teal-600"
             >
-              ← Về Cổng Học Viên
+              {isAdminView ? "← Về Trang Chấm Bài" : "← Về Cổng Học Viên"}
             </Link>
             <div>
               <div className="flex items-center gap-2">
@@ -713,22 +755,28 @@ export default function HomeworkPlanWorkspacePage() {
 
           <div className="flex items-center gap-3 self-end md:self-auto">
             {/* Submit Action */}
-            <button
-              onClick={handleSubmitPlan}
-              disabled={isSubmitting}
-              className={`font-bold px-5 py-2.5 rounded text-sm transition shadow font-mono flex items-center gap-1.5 ${
-                hasSubmitted
-                  ? "bg-emerald-400 hover:bg-emerald-300 text-slate-950 border border-emerald-300"
-                  : "bg-blue-500 hover:bg-blue-400 text-white"
-              }`}
-              title="Lưu và nộp BTVN lên hệ thống"
-            >
-              {isSubmitting
-                ? "Đang gửi..."
-                : hasSubmitted
-                ? "✓ Nộp lại bản cập nhật mới"
-                : "NỘP BÀI TẬP VỀ NHÀ →"}
-            </button>
+            {isAdminView ? (
+              <div className="bg-emerald-400 text-slate-950 font-bold px-4 py-2.5 rounded text-xs border border-emerald-300 flex items-center gap-1.5 shadow font-mono">
+                <span>✓ Bài nộp của học viên (Chế độ xem)</span>
+              </div>
+            ) : (
+              <button
+                onClick={handleSubmitPlan}
+                disabled={isSubmitting}
+                className={`font-bold px-5 py-2.5 rounded text-sm transition shadow font-mono flex items-center gap-1.5 ${
+                  hasSubmitted
+                    ? "bg-emerald-400 hover:bg-emerald-300 text-slate-950 border border-emerald-300"
+                    : "bg-blue-500 hover:bg-blue-400 text-white"
+                }`}
+                title="Lưu và nộp BTVN lên hệ thống"
+              >
+                {isSubmitting
+                  ? "Đang gửi..."
+                  : hasSubmitted
+                  ? "✓ Nộp lại bản cập nhật mới"
+                  : "NỘP BÀI TẬP VỀ NHÀ →"}
+              </button>
+            )}
           </div>
         </div>
       </div>

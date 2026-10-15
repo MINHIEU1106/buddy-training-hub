@@ -282,7 +282,7 @@ export default function AdminAssignmentsPage() {
                       <span>BẢNG KẾ HOẠCH CÁ NHÂN (QUY TRÌNH 3 BƯỚC):</span>
                       {selectedSubmission.contentUrl && (
                         <a
-                          href={selectedSubmission.contentUrl}
+                          href={`${selectedSubmission.contentUrl}${selectedSubmission.contentUrl.includes("?") ? "&" : "?"}admin=1`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-[11px] bg-blue-600 hover:bg-blue-500 text-white font-bold px-2 py-0.5 rounded uppercase"
