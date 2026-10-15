@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { GOAL_CASCADE_GROUPS, getStudentGroupNumber, getStudentGroupName } from "@/lib/goal-cascade-groups";
+import { SESSION_2_GROUPS as GOAL_CASCADE_GROUPS, getStudentGroupNumber, getStudentGroupName } from "@/lib/goal-cascade-groups";
 
 export default function StudentManagementPage() {
   const [students, setStudents] = useState<any[]>([]);
