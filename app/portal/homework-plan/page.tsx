@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { GOAL_CASCADE_GROUPS } from "@/lib/goal-cascade-groups";
+import { GOAL_CASCADE_GROUPS, getStudentGroupNumber } from "@/lib/goal-cascade-groups";
 
 interface WorkItem {
   id: string;
@@ -481,12 +481,88 @@ export default function HomeworkPlanWorkspacePage() {
       if (res.ok && data.student) {
         setCurrentStudent(data.student);
         localStorage.setItem("buddy_student_code", data.student.studentCode);
-        setPlan((prev) => ({
-          ...prev,
-          studentCode: data.student.studentCode,
-          managerName: data.student.fullName || prev.managerName,
-          department: data.student.department || prev.department,
-        }));
+
+        // Tự động chuyển tab Khoa/Phòng theo nhóm của học viên
+        const grp = getStudentGroupNumber(data.student.studentCode, data.student.groupNumber);
+        if (grp && grp >= 1 && grp <= 8) {
+          setSelectedDeptIndex(grp - 1);
+        }
+
+        // 1. Kiểm tra xem học viên đã có bài nộp BTVN trên hệ thống chưa
+        let foundSubmittedPlan: any = null;
+        let foundReview: any = null;
+        if (data.student.course?.sessions) {
+          for (const sess of data.student.course.sessions) {
+            for (const assign of sess.assignments || []) {
+              const isHomework = assign.type === "POST_SESSION" || assign.title?.includes("BTVN");
+              if (isHomework && assign.submissions && assign.submissions.length > 0) {
+                const latestSub = assign.submissions[0];
+                if (latestSub.reviews && latestSub.reviews.length > 0) {
+                  foundReview = latestSub.reviews[0];
+                }
+                if (latestSub.note) {
+                  try {
+                    const parsed = JSON.parse(latestSub.note);
+                    if (parsed && (parsed.step1_goal || parsed.step2_results || parsed.step3_6_works)) {
+                      foundSubmittedPlan = parsed;
+                      break;
+                    }
+                  } catch (e) {}
+                }
+              }
+            }
+            if (foundSubmittedPlan) break;
+          }
+        }
+
+        if (foundSubmittedPlan) {
+          setHasSubmitted(true);
+          if (foundReview) {
+            setTeacherComment(foundReview.publicComment || "");
+          }
+          setPlan((prev) => ({
+            ...prev,
+            ...foundSubmittedPlan,
+            studentCode: data.student.studentCode,
+            managerName: data.student.fullName || foundSubmittedPlan.managerName || prev.managerName,
+            department: data.student.department || foundSubmittedPlan.department || prev.department,
+          }));
+          try {
+            localStorage.setItem(
+              `homework_plan_draft_${data.student.studentCode}`,
+              JSON.stringify(foundSubmittedPlan)
+            );
+          } catch (e) {}
+          setAutoSaveMsg("Đã tải bài làm BTVN của học viên từ máy chủ");
+        } else {
+          // Chưa nộp bài trên máy chủ: Khôi phục bản nháp cục bộ nếu có
+          const draftKey = `homework_plan_draft_${data.student.studentCode}`;
+          let restoredDraft = false;
+          try {
+            const savedDraft = localStorage.getItem(draftKey);
+            if (savedDraft) {
+              const parsed = JSON.parse(savedDraft);
+              setPlan((prev) => ({
+                ...prev,
+                ...parsed,
+                studentCode: data.student.studentCode,
+                managerName: data.student.fullName || prev.managerName,
+                department: data.student.department || prev.department,
+              }));
+              setAutoSaveMsg("Đã khôi phục bản nháp BTVN cá nhân");
+              restoredDraft = true;
+            }
+          } catch (e) {}
+          if (!restoredDraft) {
+            setPlan((prev) => ({
+              ...prev,
+              studentCode: data.student.studentCode,
+              managerName: data.student.fullName || prev.managerName,
+              department: data.student.department || prev.department,
+            }));
+          }
+        }
+
         setQuickInputCode("");
       } else {
         setIdentityError(data.error || "Không tìm thấy học viên với mã này.");
@@ -504,24 +580,16 @@ export default function HomeworkPlanWorkspacePage() {
     const saved = searchCode || localStorage.getItem("buddy_student_code") || "";
     if (saved) {
       applyStudentIdentity(saved);
+    } else {
+      try {
+        const savedDraft = localStorage.getItem("homework_plan_draft_personal");
+        if (savedDraft) {
+          const parsed = JSON.parse(savedDraft);
+          setPlan((prev) => ({ ...prev, ...parsed }));
+        }
+      } catch (e) {}
     }
   }, []);
-
-  // Tải thông tin bản nháp BTVN cá nhân đã lưu
-  useEffect(() => {
-    const studentCode = plan.studentCode || localStorage.getItem("buddy_student_code") || "personal";
-    const draftKey = `homework_plan_draft_${studentCode}`;
-    try {
-      const savedDraft = localStorage.getItem(draftKey);
-      if (savedDraft) {
-        const parsed = JSON.parse(savedDraft);
-        setPlan((prev) => ({ ...prev, ...parsed }));
-        setAutoSaveMsg("Đã khôi phục bản nháp BTVN cá nhân");
-      }
-    } catch (e) {
-      console.error(e);
-    }
-  }, [plan.studentCode]);
 
   // Tự động lưu nháp mỗi khi học viên thay đổi nội dung (Autosave sau 1 giây)
   useEffect(() => {
