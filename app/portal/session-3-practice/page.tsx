@@ -643,15 +643,12 @@ export default function Session3PracticePage() {
                 </span>
               </div>
 
-              <div className="bg-rose-50 border border-rose-200 p-3 rounded-lg text-center">
+              <div className="bg-rose-50 border border-rose-200 p-3 rounded-lg text-center flex flex-col justify-center">
                 <span className="text-[10px] font-bold uppercase text-rose-800 block mb-1">
                   4. Thực tế đạt được
                 </span>
                 <span className="font-mono font-black text-rose-700 text-sm">
-                  {scenario.actualQuantity} / {scenario.targetQuantity}
-                </span>
-                <span className="text-[10px] text-rose-800 block mt-0.5 font-bold">
-                  Thiếu {scenario.missingQuantity} ({scenario.completionRate}%)
+                  {scenario.actualQuantity} {scenario.unit}
                 </span>
               </div>
             </div>
