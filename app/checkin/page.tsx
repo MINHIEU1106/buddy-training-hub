@@ -184,7 +184,7 @@ function CheckInForm() {
                 href="/portal/goal-cascade"
                 className="block w-full text-center bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs uppercase tracking-wider py-3 px-4 rounded-lg shadow-md transition font-mono"
               >
-                👥 VÀO BÀN THỰC HÀNH BUỔI 1 (8 NHÓM) →
+                👥 VÀO BÀN THỰC HÀNH BUỔI 1 (10 NHÓM) →
               </Link>
               <Link
                 href="/portal/homework-plan"

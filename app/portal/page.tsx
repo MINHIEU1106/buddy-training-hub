@@ -249,10 +249,10 @@ export default function StudentPortalPage() {
                   <span className="text-xs font-bold text-teal-300">GOAL CASCADE WORKSPACE (NHÓM)</span>
                 </div>
                 <h3 className="text-base font-bold text-white tracking-tight">
-                  Công Cụ Phân Rã Mục Tiêu BV & Lập Kế Hoạch 5W1H (Quy Trình 3 Bước - 8 Nhóm)
+                  Công Cụ Phân Rã Mục Tiêu BV & Lập Kế Hoạch 5W1H (Quy Trình 3 Bước - 10 Nhóm)
                 </h3>
                 <p className="text-xs text-teal-100 max-w-2xl">
-                  Mục tiêu gốc: <strong>&quot;Tỷ lệ người bệnh hài lòng ≥ 98%&quot;</strong>. Phân rã mục tiêu theo 8 nhóm Khoa/Phòng/Đơn vị, lập kế hoạch hành động 5W1H, sơ đồ Gantt và bảng theo dõi chỉ tiêu.
+                  Mục tiêu gốc: <strong>&quot;Tỷ lệ người bệnh hài lòng ≥ 98%&quot;</strong>. Phân rã mục tiêu theo 10 nhóm Khoa/Phòng/Đơn vị, lập kế hoạch hành động 5W1H, sơ đồ Gantt và bảng theo dõi chỉ tiêu.
                 </p>
               </div>
 
@@ -555,7 +555,7 @@ export default function StudentPortalPage() {
                                     href="/portal/goal-cascade"
                                     className="inline-block bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs uppercase tracking-wider py-2.5 px-4 rounded-lg whitespace-nowrap transition-colors shadow"
                                   >
-                                    VÀO LÀM BÀI TRÊN LỚP (8 NHÓM) →
+                                    VÀO LÀM BÀI TRÊN LỚP (10 NHÓM) →
                                   </Link>
                                 )
                               )}
