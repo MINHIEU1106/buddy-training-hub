@@ -174,16 +174,17 @@ export default function Session3PracticePage() {
       const sc = data.scenario;
       setScenario(sc);
 
-      // Điền sẵn dữ liệu mặc định cho Mẫu A từ tình huống
+      // Điền sẵn dữ liệu mặc định cho Mẫu A từ tình huống hoặc 5W1H Buổi 1
       if (sc) {
+        const firstWork = hw?.planData?.step3_6_works?.[0];
         setFormA({
-          taskName: sc.indicator || "Nhiệm vụ trọng tâm khoa phòng",
-          deliverables: `Báo cáo kết quả hoàn thành đạt tối thiểu ${sc.targetQuantity} ${sc.unit}`,
-          assignee: sc.assigneeName || data.student?.fullName || "",
-          deadline: sc.deadline || "",
-          standards: `Đạt 100% mục tiêu ${sc.targetQuantity} ${sc.unit}, đảm bảo chất lượng chuyên môn và sự hài lòng của người bệnh`,
-          checkpoints: `Cập nhật ngày 3, ngày 7 và nghiệm thu ngày 10 (${sc.deadline})`,
-          supportNeeds: `Phối hợp số liệu cùng phòng ban liên quan, hỗ trợ thiết bị liên lạc`,
+          taskName: firstWork?.taskName || sc.indicator || "Nhiệm vụ trọng tâm khoa phòng",
+          deliverables: firstWork?.what || `Báo cáo kết quả hoàn thành đạt tối thiểu ${sc.targetQuantity} ${sc.unit}`,
+          assignee: firstWork?.who || sc.assigneeName || data.student?.fullName || "",
+          deadline: firstWork?.whenEnd || sc.deadline || "",
+          standards: firstWork?.metric || `Đạt 100% mục tiêu ${sc.targetQuantity} ${sc.unit}, đảm bảo chất lượng chuyên môn và sự hài lòng của người bệnh`,
+          checkpoints: `Cập nhật ngày 3, ngày 7 và nghiệm thu ngày 10 (${firstWork?.whenEnd || sc.deadline})`,
+          supportNeeds: firstWork?.coOwners || `Phối hợp số liệu cùng phòng ban liên quan, hỗ trợ thiết bị liên lạc`,
         });
 
         // Điền sẵn Mẫu B (Dòng đầu tiên từ tình huống)

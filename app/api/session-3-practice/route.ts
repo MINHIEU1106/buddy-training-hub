@@ -65,13 +65,19 @@ export async function GET(req: NextRequest) {
     }
 
     // 1. Tìm bài và nhận xét Buổi 1 của học viên:
-    // Ưu tiên 1: Bài BTVN Lập kế hoạch cá nhân của chính học viên (nếu đã nộp có dữ liệu)
+    // ƯU TIÊN SỐ 1: Lấy từ bài thực hành Buổi 1 trên lớp của nhóm (GoalCascadePlan) - đây chính là Bài thực hành 1!
     let homeworkSub: any = null;
     let homeworkReview: any = null;
     let homeworkPlanData: any = null;
     let planSource: "GROUP_PRACTICE" | "INDIVIDUAL_HOMEWORK" = "GROUP_PRACTICE";
 
-    if (student.course?.sessions) {
+    if (groupPlan && groupPlan.data && typeof groupPlan.data === "object" && (groupPlan.data as any).plan) {
+      homeworkPlanData = (groupPlan.data as any).plan;
+      planSource = "GROUP_PRACTICE";
+    }
+
+    // Nếu nhóm chưa có bài GoalCascadePlan, mới fallback sang BTVN cá nhân của học viên
+    if (!homeworkPlanData && student.course?.sessions) {
       for (const sess of student.course.sessions) {
         for (const assign of sess.assignments) {
           const assignTitle = assign.title.toLowerCase();
@@ -99,16 +105,8 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // Ưu tiên 2: Nếu chưa có bài cá nhân, lấy từ bài thực hành Buổi 1 trên lớp của nhóm (GoalCascadePlan)
-    if (!homeworkPlanData && groupPlan) {
-      if (groupPlan.data && typeof groupPlan.data === "object" && (groupPlan.data as any).plan) {
-        homeworkPlanData = (groupPlan.data as any).plan;
-        planSource = "GROUP_PRACTICE";
-      }
-    }
-
-    // Luôn ưu tiên hiển thị nhận xét của giảng viên (nếu bài cá nhân chưa có review thì lấy nhận xét của nhóm)
-    if (!homeworkReview && groupPlan?.comment) {
+    // Luôn ưu tiên hiển thị nhận xét của giảng viên từ GoalCascadePlan
+    if (groupPlan?.comment) {
       homeworkReview = {
         grade: (groupPlan.score >= 90) ? "XUAT_SAC" : (groupPlan.score >= 80 ? "DAT" : "CAN_CHINH_SUA"),
         publicComment: groupPlan.comment,
@@ -118,6 +116,8 @@ export async function GET(req: NextRequest) {
         groupName: groupPlan.groupName,
         score: groupPlan.score,
       };
+    } else if (!homeworkReview && homeworkSub?.reviews?.length > 0) {
+      homeworkReview = homeworkSub.reviews[0];
     }
 
     // 2. Tìm bài nộp Xử lý chậm tiến độ của học viên (nếu đã nộp)
@@ -164,23 +164,24 @@ export async function GET(req: NextRequest) {
         // Tìm người phụ trách từ bảng 5W1H nếu có
         const matchedWork = homeworkPlanData.step3_6_works?.find(
           (w: any) => w.taskName?.includes(quantitativeKr.indicator) || w.what?.includes(quantitativeKr.indicator)
-        );
-        const assignee = matchedWork?.who || student.fullName || "Nhân sự phụ trách";
-        const deadline = quantitativeKr.deadline || matchedWork?.whenEnd || "2027-04-15";
+        ) || homeworkPlanData.step3_6_works?.[0];
+        const assignee = matchedWork?.who || student.fullName || "Trưởng phòng Chăm sóc";
+        const deadline = quantitativeKr.deadline || matchedWork?.whenEnd || "2027-03-31";
+        const indicatorTitle = (quantitativeKr.indicator || "").trim();
 
         personalizedCase = {
           isPersonalized: true,
-          title: `Chỉ tiêu: ${quantitativeKr.indicator}`,
+          title: `Chỉ tiêu: ${indicatorTitle}`,
           department: student.department || studentGroupName,
-          indicator: quantitativeKr.indicator,
+          indicator: indicatorTitle,
           targetQuantity: targetNum,
-          unit: quantitativeKr.unit || "chỉ tiêu",
+          unit: quantitativeKr.unit || "%",
           assigneeName: assignee,
           deadline,
           actualQuantity: actualNum,
           missingQuantity: missingNum,
           completionRate,
-          context: `Đơn vị ${student.department || studentGroupName} đặt mục tiêu hoàn thành ${targetNum} ${quantitativeKr.unit || "chỉ tiêu"} cho nhiệm vụ "${quantitativeKr.indicator}" do ${assignee} phụ trách. Đến hạn (${deadline}), thực tế đạt được ${actualNum}/${targetNum} (${completionRate}%), còn thiếu hụt ${missingNum} ${quantitativeKr.unit || "chỉ tiêu"}.`,
+          context: `Đơn vị ${student.department || studentGroupName} đặt mục tiêu hoàn thành ${targetNum}${quantitativeKr.unit ? " " + quantitativeKr.unit : ""} cho nhiệm vụ "${indicatorTitle}" do ${assignee} phụ trách. Đến hạn (${deadline}), thực tế đạt được ${actualNum}/${targetNum} (${completionRate}%), còn thiếu hụt ${missingNum}${quantitativeKr.unit ? " " + quantitativeKr.unit : ""}.`,
           questionPrompt: `Với vai trò là Quản lý trực tiếp, bạn sẽ xử lý tình huống chậm tiến độ này như thế nào theo đúng nguyên tắc 4 RÕ và kiểm soát tiến độ?`,
         };
       }
