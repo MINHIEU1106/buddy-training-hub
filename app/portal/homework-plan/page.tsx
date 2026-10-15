@@ -853,42 +853,42 @@ export default function HomeworkPlanWorkspacePage() {
 
       {/* Main Container */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-6">
-        {/* Department / Group Selector Bar */}
-        <div className="bg-white border border-slate-200 rounded-lg p-4 mb-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Chọn Khoa/Phòng phân vai:</span>
-            <div className="flex flex-wrap gap-1.5">
-              {SAMPLE_DEPARTMENTS.map((dept, idx) => (
-                <button
-                  key={dept.name}
-                  onClick={() => handleSelectDepartment(idx)}
-                  className={`text-xs font-medium px-3 py-1.5 rounded border transition ${
-                    selectedDeptIndex === idx
-                      ? "bg-[#00685E] text-white border-[#00685E] font-bold shadow-sm"
-                      : "bg-slate-50 text-slate-700 border-slate-300 hover:bg-slate-100"
-                  }`}
-                >
-                  {dept.name}
-                </button>
-              ))}
+        {/* Department / Group Display Bar */}
+        <div className="bg-white border border-slate-200 rounded-lg p-3.5 mb-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">
+              Khoa/Phòng phân vai:
+            </span>
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-[#00685E] text-white font-bold text-xs shadow-sm border border-teal-700">
+              <span>🏛️</span>
+              <span>{plan.department || GOAL_CASCADE_GROUPS[selectedDeptIndex]}</span>
+              {currentStudent && (
+                <span className="text-[10px] bg-amber-400 text-slate-950 font-black px-1.5 py-0.5 rounded font-mono uppercase ml-1">
+                  Theo mã học viên
+                </span>
+              )}
             </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <button
-              onClick={handleClearToBlank}
-              className="text-xs font-bold text-slate-700 hover:text-slate-950 bg-slate-100 hover:bg-slate-200 border border-slate-300 px-3 py-1.5 rounded transition"
-              title="Xóa trắng để tự nhập bài làm của nhóm từ đầu"
-            >
-              🧹 Biểu mẫu trống
-            </button>
-            <button
-              onClick={handleReloadSample}
-              className="text-xs font-bold text-[#00685E] hover:text-teal-900 bg-teal-50 hover:bg-teal-100 border border-teal-300 px-3 py-1.5 rounded transition"
-              title="Nạp lại gợi ý mẫu tham khảo ngành y tế"
-            >
-              💡 Gợi ý mẫu
-            </button>
+            {!isAdminView && (
+              <>
+                <button
+                  onClick={handleClearToBlank}
+                  className="text-xs font-bold text-slate-700 hover:text-slate-950 bg-slate-100 hover:bg-slate-200 border border-slate-300 px-3 py-1.5 rounded transition"
+                  title="Xóa trắng để tự nhập bài làm từ đầu"
+                >
+                  🧹 Biểu mẫu trống
+                </button>
+                <button
+                  onClick={handleReloadSample}
+                  className="text-xs font-bold text-[#00685E] hover:text-teal-900 bg-teal-50 hover:bg-teal-100 border border-teal-300 px-3 py-1.5 rounded transition"
+                  title="Nạp lại gợi ý mẫu tham khảo"
+                >
+                  💡 Gợi ý mẫu
+                </button>
+              </>
+            )}
             <div className="text-emerald-700 font-medium text-xs ml-2">● {autoSaveMsg}</div>
           </div>
         </div>
