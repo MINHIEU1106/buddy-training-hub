@@ -171,7 +171,7 @@ export async function GET(req: NextRequest) {
         personalizedCase = {
           isPersonalized: true,
           title: `Chỉ tiêu: ${quantitativeKr.indicator}`,
-          department: homeworkPlanData.department || student.department || studentGroupName,
+          department: student.department || studentGroupName,
           indicator: quantitativeKr.indicator,
           targetQuantity: targetNum,
           unit: quantitativeKr.unit || "chỉ tiêu",
@@ -180,7 +180,7 @@ export async function GET(req: NextRequest) {
           actualQuantity: actualNum,
           missingQuantity: missingNum,
           completionRate,
-          context: `Đơn vị ${homeworkPlanData.department || student.department || studentGroupName} đặt mục tiêu hoàn thành ${targetNum} ${quantitativeKr.unit || "chỉ tiêu"} cho nhiệm vụ "${quantitativeKr.indicator}" do ${assignee} phụ trách. Đến hạn (${deadline}), thực tế đạt được ${actualNum}/${targetNum} (${completionRate}%), còn thiếu hụt ${missingNum} ${quantitativeKr.unit || "chỉ tiêu"}.`,
+          context: `Đơn vị ${student.department || studentGroupName} đặt mục tiêu hoàn thành ${targetNum} ${quantitativeKr.unit || "chỉ tiêu"} cho nhiệm vụ "${quantitativeKr.indicator}" do ${assignee} phụ trách. Đến hạn (${deadline}), thực tế đạt được ${actualNum}/${targetNum} (${completionRate}%), còn thiếu hụt ${missingNum} ${quantitativeKr.unit || "chỉ tiêu"}.`,
           questionPrompt: `Với vai trò là Quản lý trực tiếp, bạn sẽ xử lý tình huống chậm tiến độ này như thế nào theo đúng nguyên tắc 4 RÕ và kiểm soát tiến độ?`,
         };
       }
