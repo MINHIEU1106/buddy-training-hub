@@ -505,7 +505,7 @@ export default function AdminSessionsPage() {
 
             <div>
               <span className="text-[11px] font-bold uppercase tracking-widest text-[#00685E] bg-teal-50 border border-teal-200 px-3 py-1 rounded-full">
-                {qrPopup.type === "IN_SESSION" ? "MÃ QR THỰC HÀNH TRÊN LỚP (8 NHÓM)" : "MÃ QR BÀI TẬP VỀ NHÀ"}
+                {qrPopup.type === "IN_SESSION" ? "MÃ QR THỰC HÀNH TRÊN LỚP (11 NHÓM)" : "MÃ QR BÀI TẬP VỀ NHÀ"}
               </span>
               <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 mt-2">
                 {qrPopup.title}

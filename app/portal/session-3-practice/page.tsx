@@ -181,7 +181,7 @@ export default function Session3PracticePage() {
           deliverables: `Báo cáo kết quả hoàn thành đạt tối thiểu ${sc.targetQuantity} ${sc.unit}`,
           assignee: sc.assigneeName || data.student?.fullName || "",
           deadline: sc.deadline || "",
-          standards: `Đạt 100% định mức ${sc.dailyQuota} ${sc.unit}/ngày, đảm bảo chất lượng và sự hài lòng của người bệnh`,
+          standards: `Đạt 100% mục tiêu ${sc.targetQuantity} ${sc.unit}, đảm bảo chất lượng chuyên môn và sự hài lòng của người bệnh`,
           checkpoints: `Cập nhật ngày 3, ngày 7 và nghiệm thu ngày 10 (${sc.deadline})`,
           supportNeeds: `Phối hợp số liệu cùng phòng ban liên quan, hỗ trợ thiết bị liên lạc`,
         });
@@ -213,7 +213,7 @@ export default function Session3PracticePage() {
         // Điền sẵn Mẫu C
         setFormC({
           issueDescription: `Tiến độ chỉ tiêu "${sc.indicator}" bị chậm so với cam kết (${sc.actualQuantity}/${sc.targetQuantity} ${sc.unit}, thiếu hụt ${sc.missingQuantity} ${sc.unit})`,
-          currentFacts: `Đến hạn ${sc.deadline}, chỉ tiêu mới hoàn thành ${sc.actualQuantity}/${sc.targetQuantity} ${sc.unit} (đạt ${sc.completionRate}%), định mức bình quân thực tế thấp hơn yêu cầu (${sc.dailyQuota} ${sc.unit}/ngày).`,
+          currentFacts: `Đến hạn ${sc.deadline}, thực tế đạt được ${sc.actualQuantity}/${sc.targetQuantity} ${sc.unit} (đạt ${sc.completionRate}%), thiếu hụt ${sc.missingQuantity} ${sc.unit} so với mục tiêu cam kết.`,
           rootCause: "",
           immediateActions: [
             {
@@ -613,8 +613,8 @@ export default function Session3PracticePage() {
               </p>
             </div>
 
-            {/* 5 Thẻ dữ kiện then chốt */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+            {/* 4 Thẻ dữ kiện then chốt */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <div className="bg-slate-50 border border-slate-200 p-3 rounded-lg text-center">
                 <span className="text-[10px] font-bold uppercase text-slate-500 block mb-1">
                   1. Mục tiêu tổng
@@ -626,17 +626,7 @@ export default function Session3PracticePage() {
 
               <div className="bg-slate-50 border border-slate-200 p-3 rounded-lg text-center">
                 <span className="text-[10px] font-bold uppercase text-slate-500 block mb-1">
-                  2. Định mức / Ngày
-                </span>
-                <span className="font-mono font-bold text-teal-700 text-sm">
-                  {scenario.dailyQuota} {scenario.unit}/ngày
-                </span>
-                <span className="text-[10px] text-slate-400 block mt-0.5 font-mono">({scenario.workingDays} ngày)</span>
-              </div>
-
-              <div className="bg-slate-50 border border-slate-200 p-3 rounded-lg text-center">
-                <span className="text-[10px] font-bold uppercase text-slate-500 block mb-1">
-                  3. Người phụ trách
+                  2. Người phụ trách
                 </span>
                 <span className="font-bold text-slate-800 text-xs block truncate" title={scenario.assigneeName}>
                   {scenario.assigneeName}
@@ -645,16 +635,16 @@ export default function Session3PracticePage() {
 
               <div className="bg-slate-50 border border-slate-200 p-3 rounded-lg text-center">
                 <span className="text-[10px] font-bold uppercase text-slate-500 block mb-1">
-                  4. Hạn chót (Deadline)
+                  3. Hạn chót (Deadline)
                 </span>
                 <span className="font-mono font-bold text-amber-700 text-xs">
                   {scenario.deadline}
                 </span>
               </div>
 
-              <div className="bg-rose-50 border border-rose-200 p-3 rounded-lg text-center col-span-2 sm:col-span-1">
+              <div className="bg-rose-50 border border-rose-200 p-3 rounded-lg text-center">
                 <span className="text-[10px] font-bold uppercase text-rose-800 block mb-1">
-                  5. Thực tế tại hạn chót
+                  4. Thực tế đạt được
                 </span>
                 <span className="font-mono font-black text-rose-700 text-sm">
                   {scenario.actualQuantity} / {scenario.targetQuantity}
@@ -790,7 +780,7 @@ export default function Session3PracticePage() {
 
               <div className="md:col-span-2">
                 <label className="block font-bold text-slate-700 uppercase mb-1">
-                  6. Tiêu chuẩn hoàn thành (Chất lượng, định mức, số liệu)
+                  6. Tiêu chuẩn hoàn thành (Chất lượng, tiêu chí, số liệu)
                 </label>
                 <textarea
                   rows={2}
@@ -1262,7 +1252,7 @@ export default function Session3PracticePage() {
                   rows={2}
                   value={formC.preventiveMeasures}
                   onChange={(e) => setFormC({ ...formC, preventiveMeasures: e.target.value })}
-                  placeholder="Giải pháp dài hạn: chuẩn hóa quy trình, thiết lập cảnh báo sớm, phân bổ lại định mức..."
+                  placeholder="Giải pháp dài hạn: chuẩn hóa quy trình, thiết lập cảnh báo sớm, rà soát phân bổ công việc..."
                   className="w-full border border-slate-300 rounded p-2 focus:ring-1 focus:ring-[#00685E]"
                 />
                 {validationErrors.formC_preventive && (
@@ -1296,7 +1286,7 @@ export default function Session3PracticePage() {
                     rows={2}
                     value={staffFeedback.step1_stateFacts}
                     onChange={(e) => setStaffFeedback({ ...staffFeedback, step1_stateFacts: e.target.value })}
-                    placeholder="VD: Đến hạn chót hôm nay, anh thấy số liệu ghi nhận là 210/300 người bệnh..."
+                    placeholder="VD: Đến hạn hôm nay, anh thấy số liệu thực tế đạt được là 210/300 người bệnh..."
                     className="w-full border border-slate-300 rounded p-1.5 bg-white"
                   />
                 </div>

@@ -110,7 +110,7 @@ export default function AdminGoalCascadePage() {
             </h1>
           </div>
           <p className="text-xs text-slate-500 mt-1">
-            Theo dõi tiến độ thực hành trực tiếp của 8 nhóm khoa/phòng, mở khóa từng bước và phát kịch bản mô phỏng
+            Theo dõi tiến độ thực hành trực tiếp của 11 nhóm khoa/phòng, mở khóa từng bước và phát kịch bản mô phỏng
           </p>
         </div>
 
@@ -192,7 +192,7 @@ export default function AdminGoalCascadePage() {
             <span className="text-[10px] font-bold uppercase bg-amber-400 text-slate-900 px-2 py-0.5 rounded font-mono">
               Chế độ Hội trường
             </span>
-            <h3 className="text-xs font-bold mt-1.5">Chiếu QR Thực Hành & So Sánh 8 Nhóm</h3>
+            <h3 className="text-xs font-bold mt-1.5">Chiếu QR Thực Hành & So Sánh 11 Nhóm</h3>
           </div>
           <div className="grid grid-cols-2 gap-2 mt-2">
             <button
@@ -235,7 +235,7 @@ export default function AdminGoalCascadePage() {
                     : "bg-slate-100 text-slate-600 border-slate-300"
                 }`}
               >
-                1. QR Thực hành tại lớp (8 Nhóm)
+                1. QR Thực hành tại lớp (11 Nhóm)
               </button>
               <button
                 onClick={() => setQrMode("HOMEWORK")}
@@ -251,7 +251,7 @@ export default function AdminGoalCascadePage() {
 
             <div>
               <span className="text-[11px] font-bold uppercase tracking-widest text-[#00685E] bg-teal-50 border border-teal-200 px-3 py-1 rounded-full">
-                {qrMode === "IN_CLASS" ? "BUỔI 1 • THỰC HÀNH TRÊN LỚP (8 NHÓM)" : "BUỔI 1 • BÀI TẬP VỀ NHÀ CÁ NHÂN"}
+                {qrMode === "IN_CLASS" ? "BUỔI 1 • THỰC HÀNH TRÊN LỚP (11 NHÓM)" : "BUỔI 1 • BÀI TẬP VỀ NHÀ CÁ NHÂN"}
               </span>
               <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 mt-2">
                 {qrMode === "IN_CLASS"
@@ -422,7 +422,7 @@ export default function AdminGoalCascadePage() {
         {/* Teams List (Col 5) */}
         <div className="md:col-span-5 space-y-3">
           <div className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-            Danh sách 8 Nhóm Khoa/Phòng Thực hành
+            Danh sách 11 Nhóm Khoa/Phòng Thực hành
           </div>
 
           <div className="space-y-2">

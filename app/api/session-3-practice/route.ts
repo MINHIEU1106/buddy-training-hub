@@ -65,52 +65,60 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    // 1. Tìm bài và nhận xét Buổi 1: Ưu tiên nhận xét bài thực hành Buổi 1 theo đúng nhóm của học viên
+    // 1. Tìm bài và nhận xét Buổi 1 của học viên:
+    // Ưu tiên 1: Bài BTVN Lập kế hoạch cá nhân của chính học viên (nếu đã nộp có dữ liệu)
     let homeworkSub: any = null;
     let homeworkReview: any = null;
     let homeworkPlanData: any = null;
     let planSource: "GROUP_PRACTICE" | "INDIVIDUAL_HOMEWORK" = "GROUP_PRACTICE";
 
-    if (groupPlan) {
-      if (groupPlan.data && typeof groupPlan.data === "object" && (groupPlan.data as any).plan) {
-        homeworkPlanData = (groupPlan.data as any).plan;
-      }
-      if (groupPlan.comment) {
-        homeworkReview = {
-          grade: (groupPlan.score >= 90) ? "XUAT_SAC" : (groupPlan.score >= 80 ? "DAT" : "CAN_CHINH_SUA"),
-          publicComment: groupPlan.comment,
-          reviewedAt: groupPlan.updatedAt,
-          reviewerName: "Giảng viên Buddy (Hội trường)",
-          source: "GROUP_PRACTICE",
-          groupName: groupPlan.groupName,
-          score: groupPlan.score,
-        };
-      }
-    }
-
-    // Nếu nhóm chưa có nhận xét, tìm bài BTVN cá nhân Buổi 1 (nếu có)
-    if (!homeworkReview && student.course?.sessions) {
+    if (student.course?.sessions) {
       for (const sess of student.course.sessions) {
         for (const assign of sess.assignments) {
-          if (assign.type === "POST_SESSION" || assign.title.includes("kế hoạch cá nhân")) {
+          const assignTitle = assign.title.toLowerCase();
+          if (assign.type === "POST_SESSION" || assignTitle.includes("kế hoạch cá nhân") || assignTitle.includes("btvn") || assignTitle.includes("buổi 1")) {
             const latestSub = assign.submissions?.[0];
             if (latestSub) {
               homeworkSub = latestSub;
               if (latestSub.reviews?.length > 0) {
                 homeworkReview = latestSub.reviews[0];
-                planSource = "INDIVIDUAL_HOMEWORK";
               }
-              if (!homeworkPlanData && latestSub.note) {
+              if (latestSub.note) {
                 try {
-                  homeworkPlanData = JSON.parse(latestSub.note);
+                  const parsed = JSON.parse(latestSub.note);
+                  if (parsed && (parsed.step1_goal || (parsed.step2_results && parsed.step2_results.length > 0))) {
+                    homeworkPlanData = parsed;
+                    planSource = "INDIVIDUAL_HOMEWORK";
+                  }
                 } catch (e) {}
               }
               break;
             }
           }
         }
-        if (homeworkReview) break;
+        if (homeworkPlanData) break;
       }
+    }
+
+    // Ưu tiên 2: Nếu chưa có bài cá nhân, lấy từ bài thực hành Buổi 1 trên lớp của nhóm (GoalCascadePlan)
+    if (!homeworkPlanData && groupPlan) {
+      if (groupPlan.data && typeof groupPlan.data === "object" && (groupPlan.data as any).plan) {
+        homeworkPlanData = (groupPlan.data as any).plan;
+        planSource = "GROUP_PRACTICE";
+      }
+    }
+
+    // Luôn ưu tiên hiển thị nhận xét của giảng viên (nếu bài cá nhân chưa có review thì lấy nhận xét của nhóm)
+    if (!homeworkReview && groupPlan?.comment) {
+      homeworkReview = {
+        grade: (groupPlan.score >= 90) ? "XUAT_SAC" : (groupPlan.score >= 80 ? "DAT" : "CAN_CHINH_SUA"),
+        publicComment: groupPlan.comment,
+        reviewedAt: groupPlan.updatedAt,
+        reviewerName: "Giảng viên Buddy (Hội trường)",
+        source: "GROUP_PRACTICE",
+        groupName: groupPlan.groupName,
+        score: groupPlan.score,
+      };
     }
 
     // 2. Tìm bài nộp Xử lý chậm tiến độ của học viên (nếu đã nộp)
@@ -138,7 +146,7 @@ export async function GET(req: NextRequest) {
       orderBy: { createdAt: "desc" },
     });
 
-    // 4. Cá nhân hóa tình huống từ chỉ tiêu có số trong Kế hoạch cá nhân Buổi 1
+    // 4. Cá nhân hóa tình huống từ chỉ tiêu trong Kế hoạch Buổi 1
     let personalizedCase = null;
     if (homeworkPlanData?.step2_results && Array.isArray(homeworkPlanData.step2_results)) {
       // Tìm chỉ số có mục tiêu dạng số
@@ -146,12 +154,10 @@ export async function GET(req: NextRequest) {
         if (!kr.target) return false;
         const num = parseFloat(kr.target.replace(/[^0-9.]/g, ""));
         return !isNaN(num) && num > 0;
-      });
+      }) || homeworkPlanData.step2_results[0];
 
       if (quantitativeKr) {
-        const targetNum = parseFloat(quantitativeKr.target.replace(/[^0-9.]/g, ""));
-        const workingDays = 10;
-        const dailyQuota = Math.round((targetNum / workingDays) * 10) / 10;
+        const targetNum = parseFloat(String(quantitativeKr.target).replace(/[^0-9.]/g, "")) || 100;
         const actualNum = Math.round(targetNum * 0.7 * 10) / 10;
         const missingNum = Math.round((targetNum - actualNum) * 10) / 10;
         const completionRate = 70;
@@ -165,19 +171,17 @@ export async function GET(req: NextRequest) {
 
         personalizedCase = {
           isPersonalized: true,
-          title: `Chỉ tiêu khoa/phòng: ${quantitativeKr.indicator}`,
-          department: homeworkPlanData.department || student.department || "Khoa/Phòng chuyên môn",
+          title: `Chỉ tiêu: ${quantitativeKr.indicator}`,
+          department: homeworkPlanData.department || student.department || studentGroupName,
           indicator: quantitativeKr.indicator,
           targetQuantity: targetNum,
           unit: quantitativeKr.unit || "chỉ tiêu",
-          workingDays,
-          dailyQuota,
           assigneeName: assignee,
           deadline,
           actualQuantity: actualNum,
           missingQuantity: missingNum,
           completionRate,
-          context: `Đơn vị ${homeworkPlanData.department || student.department} đặt mục tiêu hoàn thành ${targetNum} ${quantitativeKr.unit || "chỉ tiêu"} cho nhiệm vụ "${quantitativeKr.indicator}". Theo kế hoạch phân bổ trong ${workingDays} ngày làm việc (định mức ${dailyQuota} ${quantitativeKr.unit || "chỉ tiêu"}/ngày) do ${assignee} phụ trách. Đến hạn chót (${deadline}), đơn vị mới ghi nhận đạt ${actualNum}/${targetNum} (${completionRate}%), còn thiếu hụt ${missingNum} ${quantitativeKr.unit || "chỉ tiêu"}.`,
+          context: `Đơn vị ${homeworkPlanData.department || student.department || studentGroupName} đặt mục tiêu hoàn thành ${targetNum} ${quantitativeKr.unit || "chỉ tiêu"} cho nhiệm vụ "${quantitativeKr.indicator}" do ${assignee} phụ trách. Đến hạn (${deadline}), thực tế đạt được ${actualNum}/${targetNum} (${completionRate}%), còn thiếu hụt ${missingNum} ${quantitativeKr.unit || "chỉ tiêu"}.`,
           questionPrompt: `Với vai trò là Quản lý trực tiếp, bạn sẽ xử lý tình huống chậm tiến độ này như thế nào theo đúng nguyên tắc 4 RÕ và kiểm soát tiến độ?`,
         };
       }
